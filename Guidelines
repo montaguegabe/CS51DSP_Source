@@ -1,0 +1,17 @@
+GENERAL PROJECT GUIDELINES:
+- Always open the project through Introjucer!
+- To add a file to the project:
+    - Make sure that its location is in the "Source" folder.
+    - Add it with Introjucer.
+- CPP files should have header files to go with them.
+- In classes, public definitions should come before private definitions.
+- Names of member variables should start with a lowercase m, as in mWaveData
+- The definitions for the SoundWave class should probably be split into multiple
+  .cpp files. Use + to denote the specific functionality. For example,
+  SoundWave+Fourier.cpp could be the file the implements the Fourier-related
+  functions.
+
+If you guys prefer one way of doing comments, brackets, pointers, etc. put it here.
+
+
+Gabe changed this!
