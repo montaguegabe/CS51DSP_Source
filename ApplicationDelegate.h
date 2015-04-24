@@ -59,6 +59,7 @@ private:
     Label mAudioTitleText;
     
     VectorContentGraph<AmplitudeType> mAmplitudeTimeView;
+    VectorContentGraph<AmplitudeType> mAmplitudeFrequencyView;
     
     //TODO: Define callbacks that will be activated when a user interacts with the GUI
     void buttonClicked (Button* button) override;

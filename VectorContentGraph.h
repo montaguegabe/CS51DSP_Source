@@ -95,7 +95,7 @@ private:
                 float value = (float) mSource->at(i);
                 
                 float yOffset = yMiddle * (value / ((float) mHighLow));
-                float y = yMiddle + yOffset;
+                float y = yMiddle - yOffset;
                 
                 g.setColour (graphPointColor);
                 g.fillEllipse (x, y, graphPointSize, graphPointSize);

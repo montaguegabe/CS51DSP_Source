@@ -25,6 +25,8 @@ bool SoundWave::errorDuringInit() {
 double SoundWave::getDurationSeconds() {
     
     //TODO: Implement
+    return 0.0f;
+    
 }
 
 // Returns a vector of the waveform
@@ -39,4 +41,19 @@ AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
     }
     
     return mAmplitudeTimeVector;
+}
+
+// Returns a reference to a vector of the fourier transform
+AmplitudeVector& SoundWave::getAmplitudeFrequencyVector() {
+    
+    //TODO: Implement
+    
+    // Dummy implementation that returns an abs(cosine) wave
+    for (int i = 0; i < 500; i++) {
+        AmplitudeType value = cos(i / 7.0f) * 100;
+        if (value < 0) value = -value;
+        mAmplitudeFrequencyVector.push_back(value);
+    }
+    
+    return mAmplitudeFrequencyVector;
 }

@@ -32,12 +32,18 @@ public:
     // Returns a reference to a vector of the waveform
     AmplitudeVector& getAmplitudeTimeVector();
     
+    // Returns a reference to a vector of the fourier transform
+    AmplitudeVector& getAmplitudeFrequencyVector();
+    
     //TODO: Other analysis definitions
     
 private:
     
     // Holds amplitude over time
     AmplitudeVector mAmplitudeTimeVector;
+    
+    // Holds amplitude over frequency
+    AmplitudeVector mAmplitudeFrequencyVector;
     
     //TODO: Declare private methods/variables, e.g. sampling rate
 };

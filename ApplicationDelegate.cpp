@@ -47,9 +47,13 @@ void ApplicationDelegate::init(void) {
     mLoadFileButton.setBounds(10, 50, 100, 20);
     mMainComp.addAndMakeVisible (mLoadFileButton);
     
-    // Create a vector content graph for the amplitude
+    // Create a vector content graph for the amplitude-time
     mAmplitudeTimeView.setBounds(120, 50, 670, 100);
     mMainComp.addAndMakeVisible (mAmplitudeTimeView);
+    
+    // Create a vector content graph for the amplitude-freq
+    mAmplitudeFrequencyView.setBounds(120, 160, 670, 100);
+    mMainComp.addAndMakeVisible (mAmplitudeFrequencyView);
     
     // Registers the AD to have the buttonClicked function invoked by the button
     mLoadFileButton.addListener(this);
@@ -101,9 +105,11 @@ void ApplicationDelegate::buttonClicked (Button* button) {
                 mAudioTitleText.setText(audioFile.getFileNameWithoutExtension(),
                                         dontSendNotification);
                 
-                // Update the graph to be connected to the SoundWave object
+                // Update the graphs to be connected to the SoundWave object
                 auto vectorPointer = &(mWaveData->getAmplitudeTimeVector());
                 mAmplitudeTimeView.setSource(vectorPointer);
+                vectorPointer = &(mWaveData->getAmplitudeFrequencyVector());
+                mAmplitudeFrequencyView.setSource(vectorPointer);
             }
         }
     }
