@@ -9,6 +9,7 @@
 #include "ApplicationDelegate.h"
 #include "JuceApplication.h"
 #include "MainComponent.h"
+#include <math.h>
 
 // Called when the application delegate is created
 ApplicationDelegate::ApplicationDelegate() {
@@ -39,6 +40,15 @@ void ApplicationDelegate::init(void) {
     mLoadFileButton.setButtonText("Load Audio File");
     mLoadFileButton.setBounds(10, 10, 100, 20);
     mMainComp.addAndMakeVisible (mLoadFileButton);
+    
+    // Create a vector content graph for the amplitude
+    mAmplitudeTimeView.setBounds(10, 40, 500, 60);
+    mMainComp.addAndMakeVisible (mAmplitudeTimeView);
+    for (int i = 0; i < 500; i++) {
+        AmplitudeType value = sin(i / 7.0f) * 100;
+        mSampleVector.push_back(value);
+    }
+    mAmplitudeTimeView.setSource(&mSampleVector);
     
     // Registers the AD to have the buttonClicked function invoked by the button
     mLoadFileButton.addListener(this);

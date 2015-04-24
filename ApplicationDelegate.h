@@ -13,6 +13,7 @@
 #include "MainWindow.h"
 #include "SoundWave.h"
 #include "MainComponent.h"
+#include "VectorContentGraph.h"
 
 class CS51DigitalSignalProcessorApplication;
 
@@ -54,6 +55,9 @@ private:
     MainContentComponent mMainComp;
     
     TextButton mLoadFileButton;
+    
+    VectorContentGraph<AmplitudeType> mAmplitudeTimeView;
+    AmplitudeVector mSampleVector;
     
     //TODO: Define callbacks that will be activated when a user interacts with the GUI
     void buttonClicked (Button* button) override;

@@ -35,7 +35,7 @@ public:
     //TODO: Other analysis definitions
     
 private:
-    //TODO: Declare private methods
+    //TODO: Declare private methods/variables
 };
 
 #endif /* defined(__CS51DigitalSignalProcessor__SoundWave__) */
