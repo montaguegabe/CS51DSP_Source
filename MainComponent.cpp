@@ -7,9 +7,10 @@
 //
 
 #include "MainComponent.h"
+#include "Visuals.h"
 
 MainContentComponent::MainContentComponent() {
-    setSize (800, 600);
+    setSize (windowWidth, windowHeight);
 }
 
 MainContentComponent::~MainContentComponent() {

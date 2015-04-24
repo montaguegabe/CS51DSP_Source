@@ -15,19 +15,28 @@ SoundWave::SoundWave(String filename) {
 }
 
 // Returns if an error occured during initialization
-bool errorDuringInit() {
+bool SoundWave::errorDuringInit() {
     
     //TODO: Implement
+    return false;
 }
 
 // Returns the sound's duration in seconds
-double getDurationSeconds() {
+double SoundWave::getDurationSeconds() {
     
     //TODO: Implement
 }
 
 // Returns a vector of the waveform
-AmplitudeVector getAmplitudeTimeVector() {
+AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
     
     //TODO: Implement
+    
+    // Dummy implementation that returns a simple sine wave
+    for (int i = 0; i < 500; i++) {
+        AmplitudeType value = sin(i / 7.0f) * 100;
+        mAmplitudeTimeVector.push_back(value);
+    }
+    
+    return mAmplitudeTimeVector;
 }

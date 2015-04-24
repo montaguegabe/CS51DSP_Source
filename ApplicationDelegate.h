@@ -46,7 +46,7 @@ private:
     ScopedPointer<MainWindow> mMainWindow;
     
     // A pointer to a sole sound wave that can be loaded (only one at a time)
-    SoundWave* mWaveData;
+    ScopedPointer<SoundWave> mWaveData;
     
     // GUI elements created here don't have to be released manually, but you have
     // no control over when they are released. Creating an OwnedArray type will
@@ -56,8 +56,9 @@ private:
     
     TextButton mLoadFileButton;
     
+    Label mAudioTitleText;
+    
     VectorContentGraph<AmplitudeType> mAmplitudeTimeView;
-    AmplitudeVector mSampleVector;
     
     //TODO: Define callbacks that will be activated when a user interacts with the GUI
     void buttonClicked (Button* button) override;

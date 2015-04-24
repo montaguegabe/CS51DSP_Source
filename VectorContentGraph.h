@@ -77,15 +77,11 @@ private:
     // TODO: Figure out how to put these things in cpp file
     void paint(Graphics &g) override {
         
-        printf("\nPAINT");
-        
         g.fillAll(graphBgColor);
         
         // Calculate the point x offset and middle y
         float xOffset = this->getWidth() / (mRight - mLeft);
         float yMiddle = this->getHeight() / 2;
-        
-        printf("\n%f", yMiddle);
         
         if (mSource) {
             
@@ -111,7 +107,6 @@ private:
         }
     }
     void resized() override {
-        printf("\nRESIZE");
         this->repaint();
     }
 };

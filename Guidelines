@@ -1,5 +1,4 @@
 GENERAL PROJECT GUIDELINES:
-- Always open the project through Introjucer!
 - To add a file to the project:
     - Make sure that its location is in the "Source" folder.
     - Add it with Introjucer.

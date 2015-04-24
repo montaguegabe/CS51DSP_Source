@@ -29,13 +29,17 @@ public:
     // Returns the sound's duration in seconds
     double getDurationSeconds();
     
-    // Returns a vector of the waveform
-    AmplitudeVector getAmplitudeTimeVector();
+    // Returns a reference to a vector of the waveform
+    AmplitudeVector& getAmplitudeTimeVector();
     
     //TODO: Other analysis definitions
     
 private:
-    //TODO: Declare private methods/variables
+    
+    // Holds amplitude over time
+    AmplitudeVector mAmplitudeTimeVector;
+    
+    //TODO: Declare private methods/variables, e.g. sampling rate
 };
 
 #endif /* defined(__CS51DigitalSignalProcessor__SoundWave__) */

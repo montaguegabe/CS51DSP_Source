@@ -8,6 +8,7 @@
 
 #include "MainWindow.h"
 #include "MainComponent.h"
+#include "Visuals.h"
 
 MainWindow::MainWindow (String name, Component* mainContent): DocumentWindow (name,
                   Colours::lightgrey,
@@ -15,7 +16,7 @@ MainWindow::MainWindow (String name, Component* mainContent): DocumentWindow (na
     setUsingNativeTitleBar (true);
     setContentOwned(mainContent, true);
     setResizable (false, false);
-    centreWithSize (getWidth(), getHeight());
+    centreWithSize (windowWidth, windowHeight);
 }
 
 // This is called when the user tries to close this window.

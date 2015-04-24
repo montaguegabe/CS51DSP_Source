@@ -36,19 +36,20 @@ void ApplicationDelegate::init(void) {
     mMainWindow = new MainWindow (mJUCEApplication->getApplicationName(), &mMainComp);
     mMainWindow->setVisible (true);
     
+    // Create label with name of audio file
+    mAudioTitleText.setColour(mAudioTitleText.textColourId, textColor);
+    mAudioTitleText.setText("CS51 Digital Signal Processor by Gabe, Peter, and Michael", dontSendNotification);
+    mAudioTitleText.setBounds(10, 10, 790, 30);
+    mMainComp.addAndMakeVisible(mAudioTitleText);
+    
     // Create file-loading button
     mLoadFileButton.setButtonText("Load Audio File");
-    mLoadFileButton.setBounds(10, 10, 100, 20);
+    mLoadFileButton.setBounds(10, 50, 100, 20);
     mMainComp.addAndMakeVisible (mLoadFileButton);
     
     // Create a vector content graph for the amplitude
-    mAmplitudeTimeView.setBounds(10, 40, 500, 60);
+    mAmplitudeTimeView.setBounds(120, 50, 670, 100);
     mMainComp.addAndMakeVisible (mAmplitudeTimeView);
-    for (int i = 0; i < 500; i++) {
-        AmplitudeType value = sin(i / 7.0f) * 100;
-        mSampleVector.push_back(value);
-    }
-    mAmplitudeTimeView.setSource(&mSampleVector);
     
     // Registers the AD to have the buttonClicked function invoked by the button
     mLoadFileButton.addListener(this);
@@ -59,6 +60,9 @@ void ApplicationDelegate::shutdown() {
     
     //TODO: Remove all listeners!
     mLoadFileButton.removeListener(this);
+    
+    // Delte our sound wave object
+    mWaveData = nullptr;
     
     // Delete the window by nulling out its pointer (b/c autorelease)
     mMainWindow = nullptr;
@@ -71,24 +75,36 @@ void ApplicationDelegate::buttonClicked (Button* button) {
     
     // Load file button has been pressed
     if (button == &mLoadFileButton) {
-        printf("TODO\n");
+        FileChooser myChooser ("Choose a WAV audio file",
+                               File::getSpecialLocation (File::userHomeDirectory),
+                               "*.wav");
+        
+        if (myChooser.browseForFileToOpen())
+        {
+            // Convert File to string.
+            File audioFile (myChooser.getResult());
+            String path = audioFile.getFullPathName();
+            
+            // Initialize a sound wave instance, passing the file to the constructor.
+            mWaveData = new SoundWave(path);
+            
+            // Check for errors in initialization
+            if (mWaveData->errorDuringInit()) {
+                
+                // Free the mWaveData object by nilling it out.
+                mWaveData = nil;
+                mAudioTitleText.setText("Error loading file.",
+                                        dontSendNotification);
+            }
+            else {
+                // Set the text to match
+                mAudioTitleText.setText(audioFile.getFileNameWithoutExtension(),
+                                        dontSendNotification);
+                
+                // Update the graph to be connected to the SoundWave object
+                auto vectorPointer = &(mWaveData->getAmplitudeTimeVector());
+                mAmplitudeTimeView.setSource(vectorPointer);
+            }
+        }
     }
 }
-
-/*void fileSelected(String filename) {
- 
-// Make sure a valid file has been selected
-if (...) return;
-
-// Initialize a sound wave instance, passing the file to the constructor.
-mWaveData = SoundWave(filename);
-
-// Check for errors in initialization
-if (mWaveData) {
-// ...
-}
-else {
-// ...
-}
-}*/
-
