@@ -96,7 +96,7 @@ void ApplicationDelegate::buttonClicked (Button* button) {
             if (mWaveData->errorDuringInit()) {
                 
                 // Free the mWaveData object by nilling it out.
-                mWaveData = nil;
+                mWaveData = nullptr;
                 mAudioTitleText.setText("Error loading file.",
                                         dontSendNotification);
             }
