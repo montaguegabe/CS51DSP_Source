@@ -35,7 +35,7 @@ double SoundWave::getDurationSeconds() {
 // Returns a vector of the waveform
 AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
     
-    mAmplitudeTimeVector.clear();
+    
     
 	/* NEED TO TEST:
 	 * How is data stored in WAVs? Spec says possibly ints or floats, depending.
@@ -48,7 +48,9 @@ AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
 
 	//initialize variables
 	float sample = 0.0f;
-	mAmplitudeTimeVector = {};
+	mAmplitudeTimeVector.clear();
+
+	/*
 
 	//Creates & checks for validity of input stream
 	mInputStream = mAudioFile.createInputStream();
@@ -81,7 +83,13 @@ AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
 			}
 		}
 	}
-	
+	*/
+
+	// Dummy implementation that returns a simple sine wave
+	for (int i = 0; i < 500; i++) {
+		AmplitudeType value = sin(i / 7.0f) * 100;
+		mAmplitudeTimeVector.push_back(value);
+	}
     return mAmplitudeTimeVector;
 }
 
