@@ -14,7 +14,7 @@
 #include <vector>
 
 // Some type definitions
-typedef int AmplitudeType;
+typedef double AmplitudeType;
 typedef std::vector<AmplitudeType> AmplitudeVector;
 
 // A container class for sound data, capable of analysis
@@ -42,7 +42,18 @@ public:
     //TODO: Other analysis definitions
     
 private:
-    
+
+	AudioFormatManager mFormatManager;
+	AudioFormatReader* mAudioReader;
+	File mAudioFile;
+	FileInputStream* mInputStream;
+	int64 mNumSamples;
+	double mSampleRate;
+	double mLengthInSeconds;
+	bool initializedProperly;
+
+	//TODO: Declare private methods
+
     // Holds amplitude over time
     AmplitudeVector mAmplitudeTimeVector;
     
