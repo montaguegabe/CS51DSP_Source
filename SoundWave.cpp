@@ -38,14 +38,17 @@ AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
     mAmplitudeTimeVector.clear();
     
 	/* NEED TO TEST:
-	 * How is data stored? As ints, floats, or possibly both?
+	 * How is data stored in WAVs? Spec says possibly ints or floats, depending.
 	     - buffer.GetSample() returns a float, so maybe the conversion is automatic?
 	 * What happens when non-32-bit samples are stored in the buffer?
 	 * Is this iterating through the file correctly?
 	 * How can we print debug messages?
 	 * Does mInputStream.read() move the read head automatically?
 	 */
+
+	//initialize variables
 	float sample = 0.0f;
+	mAmplitudeTimeVector = {};
 
 	//Creates & checks for validity of input stream
 	mInputStream = mAudioFile.createInputStream();
