@@ -60,6 +60,7 @@ private:
     
     VectorContentGraph<AmplitudeType> mAmplitudeTimeView;
     VectorContentGraph<AmplitudeType> mAmplitudeFrequencyView;
+    Spectrogram<AmplitudeType> mSpectrogram;
     
     //TODO: Define callbacks that will be activated when a user interacts with the GUI
     void buttonClicked (Button* button) override;

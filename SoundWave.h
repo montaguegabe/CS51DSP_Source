@@ -35,6 +35,10 @@ public:
     // Returns a reference to a vector of the fourier transform
     AmplitudeVector& getAmplitudeFrequencyVector();
     
+    // Returns the spectrogram data, that is, a vector of Fourier transform vectors
+    // for each small window of time throughout the audio.
+    std::vector<AmplitudeVector>& getSpectrogramData();
+    
     //TODO: Other analysis definitions
     
 private:
@@ -44,6 +48,9 @@ private:
     
     // Holds amplitude over frequency
     AmplitudeVector mAmplitudeFrequencyVector;
+    
+    // Holds spectrogram data
+    std::vector<AmplitudeVector> mSpectrogramData;
     
     //TODO: Declare private methods/variables, e.g. sampling rate
 };

@@ -14,6 +14,11 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "Visuals.h"
 #include <math.h>
+#include <exception>
+
+// WARNING: Definitions are written into this header file as a temporary fix.
+// This is the only way I could get the template classes to be usable without
+// run-time errors. Inelegant to look at, so will fix at later stage.
 
 typedef unsigned long long IndexType;
 
@@ -80,8 +85,8 @@ private:
         g.fillAll(graphBgColor);
         
         // Calculate the point x offset and middle y
-        float xOffset = this->getWidth() / (mRight - mLeft);
-        float yMiddle = this->getHeight() / 2;
+        float xOffset = ((float) this->getWidth()) / (mRight - mLeft);
+        float yMiddle = ((float) this->getHeight()) / 2;
         
         if (mSource) {
             
@@ -103,6 +108,106 @@ private:
             
         } else {
             // Draw a flat line or some other indicator
+            
+        }
+    }
+    void resized() override {
+        this->repaint();
+    }
+};
+
+// This class draws the contents of 2D spectrogram stored as a 2D std::vector
+template <class T>
+class Spectrogram : public Component {
+public:
+    
+    // Constructor
+    Spectrogram() {
+        mSource = nullptr;
+        mMaxAmplitude = 128;
+        mBottom = 0;
+        mTop = 100;
+        mLeft = 0;
+        mRight = 100;
+    }
+    
+    // Sets the vector to draw via pointer
+    void setSource(std::vector<std::vector<T>>* input) {
+        
+        if (!input) {
+            throw std::invalid_argument("Tried to init graph with nullptr.");
+        } else {
+            mSource = input;
+            
+            // Size the bounds according to size
+            mLeft = 0;
+            mRight = input->size();
+            mTop = 0;
+            mBottom = input->at(0).size();
+            
+            // Paint
+            this->repaint();
+            
+        }
+    }
+    
+    void setWhiteAmplitude(T max) { mMaxAmplitude = max; }
+    
+    // Clears the source of the grapher
+    void clear();
+    
+private:
+    // The source of the grapher. Can be null.
+    std::vector<std::vector<T>>* mSource;
+    
+    // Bound properties
+    T mMaxAmplitude;
+    IndexType mBottom;
+    IndexType mTop;
+    IndexType mLeft;
+    IndexType mRight;
+    
+    // Overrides
+    // TODO: Figure out how to put these things in cpp file
+    void paint(Graphics &g) override {
+        
+        g.fillAll(graphBgColor);
+        
+        // Calculate the point x offset and middle y
+        float xOffset = ((float) this->getWidth()) / (mRight - mLeft);
+        float yOffset = ((float) this->getHeight()) / (mBottom - mTop);
+        
+        if (mSource) {
+            
+            // Iterate through the source vector
+            IndexType sizeI = mSource->size();
+            IndexType maxIndexI = mRight > sizeI ? sizeI : mRight;
+            IndexType sizeJ = mSource->at(0).size();
+            IndexType maxIndexJ = mBottom > sizeJ ? sizeJ : mBottom;
+            
+            for (IndexType i = mLeft; i < maxIndexI; i++) {
+                
+                std::vector<T> heightVector = mSource->at(i);
+                
+                // Check correct length
+                if (heightVector.size() != sizeJ)
+                    throw (std::invalid_argument("2D vector has variable height."));
+                
+                float x = i * xOffset;
+                
+                for (IndexType j = 0; j < maxIndexJ; j++) {
+                    
+                    float y = j * yOffset;
+                    
+                    float scalar = ((float) heightVector.at(j)) / mMaxAmplitude;
+                    g.setColour(Colour::fromHSV(0.0f, 0.0f, scalar, 1.0f));
+                    auto rect = Rectangle<float>(x, y, xOffset, yOffset);
+                    g.fillRect(rect);
+                }
+            }
+            
+        } else {
+            // Empty indicator
             
         }
     }

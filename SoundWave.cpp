@@ -34,6 +34,8 @@ AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
     
     //TODO: Implement
     
+    mAmplitudeTimeVector.clear();
+    
     // Dummy implementation that returns a simple sine wave
     for (int i = 0; i < 500; i++) {
         AmplitudeType value = sin(i / 7.0f) * 100;
@@ -48,6 +50,8 @@ AmplitudeVector& SoundWave::getAmplitudeFrequencyVector() {
     
     //TODO: Implement
     
+    mAmplitudeFrequencyVector.clear();
+    
     // Dummy implementation that returns an abs(cosine) wave
     for (int i = 0; i < 500; i++) {
         AmplitudeType value = cos(i / 7.0f) * 100;
@@ -56,4 +60,28 @@ AmplitudeVector& SoundWave::getAmplitudeFrequencyVector() {
     }
     
     return mAmplitudeFrequencyVector;
+}
+
+// Returns the spectrogram data, that is, a vector of Fourier transform vectors
+// for each small window of time throughout the audio.
+std::vector<AmplitudeVector>& SoundWave::getSpectrogramData() {
+
+    //TODO: Implement
+    
+    mSpectrogramData.clear();
+    
+    // Dummy implementation that returns some nice blobs
+    for (int i = 0; i < 500; i++) {
+        
+        AmplitudeVector newVector;
+        for (int j = 0; j < 500; j++) {
+            
+            AmplitudeType value = sin(i / 7.0f) * cos(j / 7.0f) * 128;
+            newVector.push_back(value);
+        }
+        
+        mSpectrogramData.push_back(newVector);
+    }
+    
+    return mSpectrogramData;
 }

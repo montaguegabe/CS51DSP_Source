@@ -55,6 +55,10 @@ void ApplicationDelegate::init(void) {
     mAmplitudeFrequencyView.setBounds(120, 160, 670, 100);
     mMainComp.addAndMakeVisible (mAmplitudeFrequencyView);
     
+    // Create spectrogram
+    mSpectrogram.setBounds(120, 270, 300, 300);
+    mMainComp.addAndMakeVisible(mSpectrogram);
+    
     // Registers the AD to have the buttonClicked function invoked by the button
     mLoadFileButton.addListener(this);
 }
@@ -96,7 +100,7 @@ void ApplicationDelegate::buttonClicked (Button* button) {
             if (mWaveData->errorDuringInit()) {
                 
                 // Free the mWaveData object by nilling it out.
-                mWaveData = nil;
+                mWaveData = nullptr;
                 mAudioTitleText.setText("Error loading file.",
                                         dontSendNotification);
             }
@@ -110,6 +114,9 @@ void ApplicationDelegate::buttonClicked (Button* button) {
                 mAmplitudeTimeView.setSource(vectorPointer);
                 vectorPointer = &(mWaveData->getAmplitudeFrequencyVector());
                 mAmplitudeFrequencyView.setSource(vectorPointer);
+                
+                auto vector2DPointer = &(mWaveData->getSpectrogramData());
+                mSpectrogram.setSource(vector2DPointer);
             }
         }
     }
