@@ -18,7 +18,7 @@ SoundWave::SoundWave(String filename) {
 
 // Returns if an error occured during initialization
 bool SoundWave::errorDuringInit() {
-	return initializedProperly;
+	return !initializedProperly;
 	//TODO: Implement
 }
 
