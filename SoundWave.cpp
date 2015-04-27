@@ -34,7 +34,8 @@ SoundWave::SoundWave(String filename) {
 		filePathCorrect &&
 		inputStreamCorrect &&
 		inputStreamNonzero &&
-		fileNonZero);
+		fileNonZero
+		);
 		
 }
 
@@ -66,18 +67,19 @@ AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
 	//initialize variables
 	AmplitudeType sample;
 	mAmplitudeTimeVector.clear();	
-
 	
 
-	//Creates sample buffer for one channel and one 32-bit sample
-	AudioSampleBuffer buffer(1, 1);
-
-	//Readies normalization
+	//Readies normalization between -1.0 and 1.0
 	AmplitudeType normalizedVal = 0.0;
 	unsigned int bitsPerChunk = (mAudioReader->bitsPerSample);
 	unsigned int bytesPerChunk = bitsPerChunk / 8;
+	unsigned int bytesInFile = mNumSamples * bytesPerChunk;
 	double maxValue = pow(2, (bitsPerChunk - 1));
 	bool usesFloatingPointData = mAudioReader->usesFloatingPointData;
+
+	//Creates sample buffer for one channel and entire WAV file
+	AudioSampleBuffer buffer(1, bytesInFile);
+	buffer.clear();
 
 	/*
 	//Adds data to vector
@@ -100,20 +102,18 @@ AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
 	}
 	*/
 
-	/*
-	// Dummy implementation that returns a simple sine wave
-	for (int i = 0; i < 500; i++) {
-		AmplitudeType value = sin(i / 7.0f) * 100;
-		mAmplitudeTimeVector.push_back(value);
+
+	int64 inputStreamLength = mInputStream->getTotalLength();
+	if (inputStreamLength > 0)
+	{
+		mInputStream->read(&buffer, bytesInFile);
 	}
-	*/
-
-	mInputStream->read(&buffer, bytesPerChunk);
-	//buffer.setSample(0, 0, 0.0); 
-	sample = buffer.getSample(0, 0);
-	mAmplitudeTimeVector.push_back(sample);
 	
-
+	for (int i = 0; i < 48000; i++) {
+		sample = buffer.getSample(0, i);
+		mAmplitudeTimeVector.push_back(sample);
+	}
+	
     return mAmplitudeTimeVector;
 }
 
