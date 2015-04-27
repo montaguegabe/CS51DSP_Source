@@ -51,12 +51,14 @@ AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
 	AmplitudeType sample;
 	mAmplitudeTimeVector.clear();	
 	
-		//Creates sample buffer for one full channel of an audio file
+	//Creates & fills sample buffer for one full channel of an audio file
 	AudioSampleBuffer buffer(1, mNumSamples);
 	buffer.clear();
-		
 	mAudioReader->read(&buffer, 0, mNumSamples, 0, true, true);
-	for (int i = 0; i < mNumSamples; i++) {
+
+	//Fills a vector with samples from the buffer
+	//for (int i = 0; i < mNumSamples; i++) { - DUMMIED OUT TO KEEP VECTOR SMALL
+	for (int i = 0; i < 24000; i++) {
 		sample = buffer.getSample(0, i);
 		mAmplitudeTimeVector.push_back(sample * 100);
 	}
