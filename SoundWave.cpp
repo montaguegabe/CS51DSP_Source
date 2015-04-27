@@ -22,18 +22,10 @@ SoundWave::SoundWave(String filename) {
 	mLengthInSeconds = mNumSamples / mSampleRate;
 	bool fileNonZero = mNumSamples > 0;
 
-	//Creates & checks for validity of input stream
-	mInputStream = mAudioFile.createInputStream();
-	bool inputStreamCorrect = (mInputStream->getFile() == mAudioFile);
-	bool validInputStream = mInputStream->openedOk();
-	bool inputStreamNonzero = (mInputStream->getTotalLength() > 0);
 
 	initializedProperly = 
 	   (fileExists &&
-		validInputStream &&
 		filePathCorrect &&
-		inputStreamCorrect &&
-		inputStreamNonzero &&
 		fileNonZero
 		);
 		
@@ -55,63 +47,18 @@ double SoundWave::getDurationSeconds() {
 // Returns a vector of the waveform
 AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
       
-    /* NEED TO TEST:
-	 * How is data stored in WAVs? Spec says possibly ints or floats, depending.
-	     - buffer.GetSample() returns a float, so maybe the conversion is automatic?
-	 * What happens when non-32-bit samples are stored in the buffer?
-	 * Is this iterating through the file correctly?
-	 * How can we print debug messages?
-	 * Does mInputStream.read() move the read head automatically?
-	 */
-
 	//initialize variables
 	AmplitudeType sample;
 	mAmplitudeTimeVector.clear();	
 	
-
-	//Readies normalization between -1.0 and 1.0
-	AmplitudeType normalizedVal = 0.0;
-	unsigned int bitsPerChunk = (mAudioReader->bitsPerSample);
-	unsigned int bytesPerChunk = bitsPerChunk / 8;
-	unsigned int bytesInFile = mNumSamples * bytesPerChunk;
-	double maxValue = pow(2, (bitsPerChunk - 1));
-	bool usesFloatingPointData = mAudioReader->usesFloatingPointData;
-
-	//Creates sample buffer for one channel and entire WAV file
-	AudioSampleBuffer buffer(1, bytesInFile);
+		//Creates sample buffer for one full channel of an audio file
+	AudioSampleBuffer buffer(1, mNumSamples);
 	buffer.clear();
-
-	/*
-	//Adds data to vector
-	if (validInputStream)
-	{
-		while (!mInputStream->isExhausted())
-		{
-			mInputStream->read(&buffer, bytesPerChunk);
-			sample = buffer.getSample(0, 0);
-			if (usesFloatingPointData)
-			{
-				mAmplitudeTimeVector.push_back(sample);
-			}
-			else
-			{				
-				normalizedVal = sample / maxValue;
-				mAmplitudeTimeVector.push_back(normalizedVal);
-			}
-		}
-	}
-	*/
-
-
-	int64 inputStreamLength = mInputStream->getTotalLength();
-	if (inputStreamLength > 0)
-	{
-		mInputStream->read(&buffer, bytesInFile);
-	}
-	
-	for (int i = 0; i < 48000; i++) {
+		
+	mAudioReader->read(&buffer, 0, mNumSamples, 0, true, true);
+	for (int i = 0; i < mNumSamples; i++) {
 		sample = buffer.getSample(0, i);
-		mAmplitudeTimeVector.push_back(sample);
+		mAmplitudeTimeVector.push_back(sample * 100);
 	}
 	
     return mAmplitudeTimeVector;
