@@ -12,32 +12,49 @@
 SoundWave::SoundWave(String filename) {
 	mFormatManager.registerBasicFormats();
 	mAudioFile = File(filename);
-	initializedProperly = mAudioFile.exists();
+	bool filePathCorrect = (mAudioFile.getFullPathName() == filename);
+	bool fileExists = mAudioFile.exists();
 	mAudioReader = mFormatManager.createReaderFor(mAudioFile);
+
+	//collects data about audio file
+	mNumSamples = mAudioReader->lengthInSamples;
+	mSampleRate = mAudioReader->sampleRate;
+	mLengthInSeconds = mNumSamples / mSampleRate;
+	bool fileNonZero = mNumSamples > 0;
+
+	//Creates & checks for validity of input stream
+	mInputStream = mAudioFile.createInputStream();
+	bool inputStreamCorrect = (mInputStream->getFile() == mAudioFile);
+	bool validInputStream = mInputStream->openedOk();
+	bool inputStreamNonzero = (mInputStream->getTotalLength() > 0);
+
+	initializedProperly = 
+	   (fileExists &&
+		validInputStream &&
+		filePathCorrect &&
+		inputStreamCorrect &&
+		inputStreamNonzero &&
+		fileNonZero);
+		
 }
 
 // Returns if an error occured during initialization
 bool SoundWave::errorDuringInit() {
+
 	return !initializedProperly;
-	//TODO: Implement
 }
 
 // Returns the sound's duration in seconds
 double SoundWave::getDurationSeconds() {
-
-	mNumSamples = mAudioReader->lengthInSamples;
-	mSampleRate = mAudioReader->sampleRate;
-	mLengthInSeconds = mNumSamples / mSampleRate;
+		
 	return mLengthInSeconds;
 
 }
 
 // Returns a vector of the waveform
 AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
-    
-    
-    
-	/* NEED TO TEST:
+      
+    /* NEED TO TEST:
 	 * How is data stored in WAVs? Spec says possibly ints or floats, depending.
 	     - buffer.GetSample() returns a float, so maybe the conversion is automatic?
 	 * What happens when non-32-bit samples are stored in the buffer?
@@ -47,14 +64,10 @@ AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
 	 */
 
 	//initialize variables
-	float sample = 0.0f;
-	mAmplitudeTimeVector.clear();
+	AmplitudeType sample;
+	mAmplitudeTimeVector.clear();	
 
-	/*
-
-	//Creates & checks for validity of input stream
-	mInputStream = mAudioFile.createInputStream();
-	bool validInputStream = mInputStream->openedOk();
+	
 
 	//Creates sample buffer for one channel and one 32-bit sample
 	AudioSampleBuffer buffer(1, 1);
@@ -64,7 +77,9 @@ AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
 	unsigned int bitsPerChunk = (mAudioReader->bitsPerSample);
 	unsigned int bytesPerChunk = bitsPerChunk / 8;
 	double maxValue = pow(2, (bitsPerChunk - 1));
+	bool usesFloatingPointData = mAudioReader->usesFloatingPointData;
 
+	/*
 	//Adds data to vector
 	if (validInputStream)
 	{
@@ -72,24 +87,33 @@ AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
 		{
 			mInputStream->read(&buffer, bytesPerChunk);
 			sample = buffer.getSample(0, 0);
-			if (mAudioReader->usesFloatingPointData)
+			if (usesFloatingPointData)
 			{
 				mAmplitudeTimeVector.push_back(sample);
 			}
 			else
 			{				
 				normalizedVal = sample / maxValue;
-				mAmplitudeTimeVector.push_back(sample);
+				mAmplitudeTimeVector.push_back(normalizedVal);
 			}
 		}
 	}
 	*/
 
+	/*
 	// Dummy implementation that returns a simple sine wave
 	for (int i = 0; i < 500; i++) {
 		AmplitudeType value = sin(i / 7.0f) * 100;
 		mAmplitudeTimeVector.push_back(value);
 	}
+	*/
+
+	mInputStream->read(&buffer, bytesPerChunk);
+	//buffer.setSample(0, 0, 0.0); 
+	sample = buffer.getSample(0, 0);
+	mAmplitudeTimeVector.push_back(sample);
+	
+
     return mAmplitudeTimeVector;
 }
 
