@@ -22,6 +22,7 @@ VectorContentGraph<T>::VectorContentGraph()
     mHighLow = 128;
     mLeft = 0;
     mSamplesShowing = 100;
+    mZeroBottom = false;
     this->setWantsKeyboardFocus(true);
 }
 
@@ -54,6 +55,12 @@ void VectorContentGraph<T>::clear() {
 template <class T>
 void VectorContentGraph<T>::setHighLow(T highLow) {
     mHighLow = highLow;
+    repaint();
+}
+
+template <class T>
+void VectorContentGraph<T>::setZeroBottom(bool zeroBottom) {
+    mZeroBottom = zeroBottom;
     repaint();
 }
 
@@ -96,6 +103,7 @@ void VectorContentGraph<T>::paint(Graphics &g)  {
     // Calculate the point x offset and middle y
     float yMiddle = (getHeight()) / 2;
     float width = getWidth();
+    float height = getHeight();
     
     g.setColour (graphPointColor);
     
@@ -118,7 +126,7 @@ void VectorContentGraph<T>::paint(Graphics &g)  {
                 float value = (mSource->at(i));
                 
                 float yOffset = yMiddle * (value / ((float) (mHighLow)));
-                float y = yMiddle - yOffset;
+                float y = mZeroBottom ? height - yOffset: yMiddle - yOffset;
                 
                 g.fillEllipse (x - graphPointSize / 2, y - graphPointSize / 2, graphPointSize, graphPointSize);
                 g.drawLine(x - graphPixelOffset, previousY, x, y);
@@ -160,7 +168,7 @@ bool VectorContentGraph<T>::keyPressed (const KeyPress &key) {
     }
     
     // Don't consume event
-    return false;
+    return true;
 }
 
 // The resize operation

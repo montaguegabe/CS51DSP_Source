@@ -53,6 +53,7 @@ void ApplicationDelegate::init(void) {
     
     // Create a vector content graph for the amplitude-freq
     mAmplitudeFrequencyView.setBounds(120, 160, 670, 100);
+    mAmplitudeFrequencyView.setZeroBottom(true);
     mMainComp.addAndMakeVisible (mAmplitudeFrequencyView);
     
     // Create spectrogram

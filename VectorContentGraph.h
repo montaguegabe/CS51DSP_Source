@@ -36,6 +36,9 @@ public:
     // Sets the vertical bounds the grapher
     void setHighLow(T highLow);
     
+    // Sets whether 0 should be the bottom of the Y axis
+    void setZeroBottom(bool zeroBottom);
+    
     // Set the horizontal bounds of the grapher. These are inclusive on left, exclusive on right.
     void setLeft(IndexType left);
     void setSamplesShowing(IndexType samples);
@@ -53,6 +56,7 @@ private:
     T mHighLow;
     IndexType mLeft;
     IndexType mSamplesShowing;
+    bool mZeroBottom;
     
     // Overrides for component
     void paint(Graphics &g) override;
