@@ -97,6 +97,8 @@ void VectorContentGraph<T>::paint(Graphics &g)  {
     float yMiddle = (getHeight()) / 2;
     float width = getWidth();
     
+    g.setColour (graphPointColor);
+    
     if (mSource) {
         
         // Iterate through the source vector
@@ -104,6 +106,7 @@ void VectorContentGraph<T>::paint(Graphics &g)  {
         
         // Calculate index change
         IndexType deltaI = xToIndex(graphPixelOffset, getWidth(), mSamplesShowing, 0);
+        if (deltaI < 1) deltaI = 1;
         
         float previousY = yMiddle;
         
@@ -117,8 +120,7 @@ void VectorContentGraph<T>::paint(Graphics &g)  {
                 float yOffset = yMiddle * (value / ((float) (mHighLow)));
                 float y = yMiddle - yOffset;
                 
-                g.setColour (graphPointColor);
-                //g.fillEllipse (x, y, graphPointSize, graphPointSize);
+                g.fillEllipse (x - graphPointSize / 2, y - graphPointSize / 2, graphPointSize, graphPointSize);
                 g.drawLine(x - graphPixelOffset, previousY, x, y);
                 
                 previousY = y;
@@ -127,6 +129,8 @@ void VectorContentGraph<T>::paint(Graphics &g)  {
         
     } else {
         // Draw a flat line or some other indicator
+        g.setColour(Colours::red);
+        g.drawLine(0, yMiddle, width, yMiddle);
         
     }
 }
@@ -147,7 +151,8 @@ bool VectorContentGraph<T>::keyPressed (const KeyPress &key) {
     }
     else if (key == KeyPress::leftKey) {
         auto change = mSamplesShowing * WindowChangeAmount;
-        setLeft(mLeft - change);
+        if (mLeft >= change) setLeft(mLeft - change);
+        else setLeft(0);
     }
     else if (key == KeyPress::rightKey) {
         auto change = mSamplesShowing * WindowChangeAmount;
