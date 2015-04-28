@@ -16,10 +16,6 @@
 #include <math.h>
 #include <exception>
 
-// WARNING: Definitions are written into this header file as a temporary fix.
-// This is the only way I could get the template classes to be usable without
-// run-time errors. Inelegant to look at, so will fix at later stage.
-
 typedef unsigned long long IndexType;
 
 template <class T>
@@ -29,30 +25,10 @@ class VectorContentGraph : public Component {
 public:
     
     // Constructor
-    VectorContentGraph() {
-        mSource = nullptr;
-        mHighLow = 128;
-        mLeft = 0;
-        mRight = 100;
-    }
+    VectorContentGraph();
     
     // Sets the vector to draw via pointer
-    void setSource(std::vector<T>* input) {
-        
-        if (!input) {
-            throw std::invalid_argument("Tried to init graph with nullptr.");
-        } else {
-            mSource = input;
-            
-            // Size the bounds according to size
-            mLeft = 0;
-            mRight = input->size();
-            
-            // Paint
-            this->repaint();
-            
-        }
-    }
+    void setSource(std::vector<T>* input);
     
     // Clears the source of the grapher
     void clear();
@@ -61,13 +37,13 @@ public:
     void setHighLow(T highLow);
     
     // Set the horizontal bounds of the grapher. These are inclusive on left, exclusive on right.
-    void setHorizontalBounds(IndexType left,
-                             IndexType right);
+    void setLeft(IndexType left);
+    void setSamplesShowing(IndexType samples);
     
     // Accessors for bounds
     T getHighLow();
     IndexType getLeft();
-    IndexType getRight();
+    IndexType getSamplesShowing();
     
 private:
     // The source of the grapher. Can be null.
@@ -76,44 +52,14 @@ private:
     // Bound properties
     T mHighLow;
     IndexType mLeft;
-    IndexType mRight;
+    IndexType mSamplesShowing;
     
-    // Overrides
-    // TODO: Figure out how to put these things in cpp file
-    void paint(Graphics &g) override {
-        
-        g.fillAll(graphBgColor);
-        
-        // Calculate the point x offset and middle y
-        float xOffset = ((float) this->getWidth()) / (mRight - mLeft);
-        float yMiddle = ((float) this->getHeight()) / 2;
-        
-        if (mSource) {
-            
-            // Iterate through the source vector
-            IndexType size = mSource->size();
-            IndexType maxIndex = mRight > size ? size : mRight;
-            
-            for (IndexType i = mLeft; i < maxIndex; i++) {
-                
-                float x = i * xOffset;
-                float value = (float) mSource->at(i);
-                
-                float yOffset = yMiddle * (value / ((float) mHighLow));
-                float y = yMiddle - yOffset;
-                
-                g.setColour (graphPointColor);
-                g.fillEllipse (x, y, graphPointSize, graphPointSize);
-            }
-            
-        } else {
-            // Draw a flat line or some other indicator
-            
-        }
-    }
-    void resized() override {
-        this->repaint();
-    }
+    // Overrides for component
+    void paint(Graphics &g) override;
+    void resized() override;
+    
+    // Overrides for key listener
+    bool keyPressed (const KeyPress &key) override;
 };
 
 // This class draws the contents of 2D spectrogram stored as a 2D std::vector
@@ -122,34 +68,10 @@ class Spectrogram : public Component {
 public:
     
     // Constructor
-    Spectrogram() {
-        mSource = nullptr;
-        mMaxAmplitude = 128;
-        mBottom = 0;
-        mTop = 100;
-        mLeft = 0;
-        mRight = 100;
-    }
+    Spectrogram();
     
     // Sets the vector to draw via pointer
-    void setSource(std::vector<std::vector<T>>* input) {
-        
-        if (!input) {
-            throw std::invalid_argument("Tried to init graph with nullptr.");
-        } else {
-            mSource = input;
-            
-            // Size the bounds according to size
-            mLeft = 0;
-            mRight = input->size();
-            mTop = 0;
-            mBottom = input->at(0).size();
-            
-            // Paint
-            this->repaint();
-            
-        }
-    }
+    void setSource(std::vector<std::vector<T>>* input);
     
     void setWhiteAmplitude(T max) { mMaxAmplitude = max; }
     
@@ -168,52 +90,10 @@ private:
     IndexType mRight;
     
     // Overrides
-    // TODO: Figure out how to put these things in cpp file
-    void paint(Graphics &g) override {
-        
-        g.fillAll(graphBgColor);
-        
-        // Calculate the point x offset and middle y
-        float xOffset = ((float) this->getWidth()) / (mRight - mLeft);
-        float yOffset = ((float) this->getHeight()) / (mBottom - mTop);
-        
-        if (mSource) {
-            
-            // Iterate through the source vector
-            IndexType sizeI = mSource->size();
-            IndexType maxIndexI = mRight > sizeI ? sizeI : mRight;
-            IndexType sizeJ = mSource->at(0).size();
-            IndexType maxIndexJ = mBottom > sizeJ ? sizeJ : mBottom;
-            
-            for (IndexType i = mLeft; i < maxIndexI; i++) {
-                
-                std::vector<T> heightVector = mSource->at(i);
-                
-                // Check correct length
-                if (heightVector.size() != sizeJ)
-                    throw (std::invalid_argument("2D vector has variable height."));
-                
-                float x = i * xOffset;
-                
-                for (IndexType j = 0; j < maxIndexJ; j++) {
-                    
-                    float y = j * yOffset;
-                    
-                    float scalar = ((float) heightVector.at(j)) / mMaxAmplitude;
-                    g.setColour(Colour::fromHSV(0.0f, 0.0f, scalar, 1.0f));
-                    auto rect = Rectangle<float>(x, y, xOffset, yOffset);
-                    g.fillRect(rect);
-                }
-            }
-            
-        } else {
-            // Empty indicator
-            
-        }
-    }
-    void resized() override {
-        this->repaint();
-    }
+    void paint(Graphics &g) override;
+    void resized() override;
 };
+
+#include "VectorContentGraph.tpp"
 
 #endif /* defined(__CS51DigitalSignalProcessor__VectorContentGraph__) */
