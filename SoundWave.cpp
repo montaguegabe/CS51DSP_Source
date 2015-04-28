@@ -57,10 +57,13 @@ AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
 	buffer.clear();
 	mAudioReader->read(&buffer, 0, mNumSamples, 0, true, true);
 
-	//Fills a vector with samples from the buffer, normalized between -100.0 and 100.0
-	//For multichannel tracks, all samples at a given time are averaged	
+	/* Fills a vector with samples from the buffer, normalized between 
+	 * -100.0 and 100.0. For multichannel tracks, all samples at a given time
+	 * are averaged. Better would be an array of vector of each individual
+	 * channel, so we could perform an FFT on each and display each channel's 
+	 * specific spectrogram, but that's way out of scope */
 	
-	//for (int i = 0; i < mNumSamples; i++) { - DUMMIED OUT TO KEEP VECTOR SMALL
+	//for (int i = 0; i < mNumSamples; i++) { -DUMMIED OUT TO KEEP VECTOR SMALL
 	for (int i = 0; i < 2400; i++) {
 		sample = 0.0;
 		for (int j = 0; j < mNumChannels; j++) {
