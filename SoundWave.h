@@ -51,6 +51,7 @@ private:
 	double mSampleRate;
 	double mLengthInSeconds;
 	bool initializedProperly;
+	int mNumChannels;
 
 	//TODO: Declare private methods
 
