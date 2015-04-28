@@ -121,6 +121,10 @@ std::vector<AmplitudeVector>& SoundWave::getSpectrogramData() {
     return mSpectrogramData;
 }
 
+double::SoundWave::getSampleRate() {
+    return mSampleRate;
+}
+
 // Lazy returning
 int SoundWave::getFF() {
     

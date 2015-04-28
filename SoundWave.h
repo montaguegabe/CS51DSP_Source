@@ -42,6 +42,9 @@ public:
     // Fundamental frequency
     int getFF();
     
+    // Get sample rate
+    double getSampleRate();
+    
 private:
 
 	AudioFormatManager mFormatManager;

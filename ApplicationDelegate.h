@@ -63,8 +63,12 @@ private:
     VectorContentGraph<AmplitudeType> mAmplitudeFrequencyView;
     Spectrogram<AmplitudeType> mSpectrogram;
     
+    // The index of playing
+    float mPlayIndex;
+    
     //TODO: Define callbacks that will be activated when a user interacts with the GUI
     void buttonClicked (Button* button) override;
+    
 };
 
 #endif /* defined(__CS51DigitalSignalProcessor__ApplicationDelegate__) */

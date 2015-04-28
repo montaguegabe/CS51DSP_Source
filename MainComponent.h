@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include "../JuceLibraryCode/JuceHeader.h"
 
-class MainContentComponent : public Component {
+class MainContentComponent : public AudioAppComponent {
 public:
     
     MainContentComponent();
@@ -22,7 +22,16 @@ public:
     void paint (Graphics& g) override;
     
     
-private:    
+private:
+    
+    float mPlayIndex;
+    
+    void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
+    
+    void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill) override;
+    
+    void releaseResources() override;
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
 
