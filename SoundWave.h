@@ -39,7 +39,8 @@ public:
     // for each small window of time throughout the audio.
     std::vector<AmplitudeVector>& getSpectrogramData();
     
-    //TODO: Other analysis definitions
+    // Fundamental frequency
+    int getFF();
     
 private:
 
@@ -52,6 +53,7 @@ private:
 	double mLengthInSeconds;
 	bool initializedProperly;
 	int mNumChannels;
+    int mFF;
 
 	//TODO: Declare private methods
 

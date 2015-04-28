@@ -7,9 +7,11 @@
 //
 
 #include "SoundWave.h"
+#include "SoundWaveFFT.h"
 
 // Initializes a sound wave instance from an audio file
 SoundWave::SoundWave(String filename) {
+    mFF = -1;
 	mFormatManager.registerBasicFormats();
 	mAudioFile = File(filename);
 	bool filePathCorrect = (mAudioFile.getFullPathName() == filename);
@@ -64,7 +66,7 @@ AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
 	 * specific spectrogram, but that's way out of scope */
 	
 	//for (int i = 0; i < mNumSamples; i++) { -DUMMIED OUT TO KEEP VECTOR SMALL
-	for (int i = 0; i < 2400; i++) {
+	for (int i = 0; i < 1024; i++) {
 		sample = 0.0;
 		for (int j = 0; j < mNumChannels; j++) {
 			sample = sample + buffer.getSample(j, i);
@@ -79,16 +81,18 @@ AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
 // Returns a reference to a vector of the fourier transform
 AmplitudeVector& SoundWave::getAmplitudeFrequencyVector() {
     
-    //TODO: Implement
-    
     mAmplitudeFrequencyVector.clear();
     
     // Dummy implementation that returns an abs(cosine) wave
-    for (int i = 0; i < 500; i++) {
+    /*for (int i = 0; i < 500; i++) {
         AmplitudeType value = cos(i / 7.0f) * 100;
         if (value < 0) value = -value;
         mAmplitudeFrequencyVector.push_back(value);
-    }
+    }*/
+    
+    auto complexInput = realVectorToComplex(mAmplitudeTimeVector);
+    ComplexVector transform = fftRec(complexInput, complexInput.size(), 1, 0);
+    mAmplitudeFrequencyVector = complexVectorToReal(transform);
     
     return mAmplitudeFrequencyVector;
 }
@@ -96,7 +100,7 @@ AmplitudeVector& SoundWave::getAmplitudeFrequencyVector() {
 // Returns the spectrogram data, that is, a vector of Fourier transform vectors
 // for each small window of time throughout the audio.
 std::vector<AmplitudeVector>& SoundWave::getSpectrogramData() {
-
+    
     //TODO: Implement
     
     mSpectrogramData.clear();
@@ -116,4 +120,27 @@ std::vector<AmplitudeVector>& SoundWave::getSpectrogramData() {
     
     return mSpectrogramData;
 }
-// PRIVATE methods
+
+// Lazy returning
+int SoundWave::getFF() {
+    
+    // Calculate if not already
+    if (mFF == -1) {
+        
+        AmplitudeType maximum = 0;
+        int maxFreq = 0;
+        
+        int size = mAmplitudeFrequencyVector.size();
+        for (int i = 0; i < size; i++) {
+            AmplitudeType value = mAmplitudeFrequencyVector[i];
+            if (value > maximum) {
+                maximum = value;
+                maxFreq = i;
+            }
+        }
+        
+        mFF = maxFreq;
+    }
+    
+    return mFF;
+}

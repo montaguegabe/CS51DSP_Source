@@ -10,6 +10,7 @@
 #include "JuceApplication.h"
 #include "MainComponent.h"
 #include <math.h>
+#include <string>
 
 // Called when the application delegate is created
 ApplicationDelegate::ApplicationDelegate() {
@@ -41,6 +42,12 @@ void ApplicationDelegate::init(void) {
     mAudioTitleText.setText("CS51 Digital Signal Processor by Gabe, Peter, and Michael", dontSendNotification);
     mAudioTitleText.setBounds(10, 10, 790, 30);
     mMainComp.addAndMakeVisible(mAudioTitleText);
+    
+    // Create FF label
+    mFFText.setColour(mAudioTitleText.textColourId, textColor);
+    mFFText.setText("FF: ", dontSendNotification);
+    mFFText.setBounds(10, 80, 100, 20);
+    mMainComp.addAndMakeVisible(mFFText);
     
     // Create file-loading button
     mLoadFileButton.setButtonText("Load Audio File");
@@ -118,6 +125,11 @@ void ApplicationDelegate::buttonClicked (Button* button) {
                 
                 auto vector2DPointer = &(mWaveData->getSpectrogramData());
                 mSpectrogram.setSource(vector2DPointer);
+                
+                // Update the FF label
+                int ff = mWaveData->getFF();
+                std::string out = "FF: " + std::to_string(ff);
+                mFFText.setText(out, dontSendNotification);
             }
         }
     }

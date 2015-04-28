@@ -57,6 +57,7 @@ private:
     TextButton mLoadFileButton;
     
     Label mAudioTitleText;
+    Label mFFText;
     
     VectorContentGraph<AmplitudeType> mAmplitudeTimeView;
     VectorContentGraph<AmplitudeType> mAmplitudeFrequencyView;
