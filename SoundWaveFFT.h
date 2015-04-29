@@ -17,47 +17,73 @@ typedef std::vector<std::complex<AmplitudeType>> ComplexVector;
 typedef std::complex<AmplitudeType> ComplexAmplitude;
 
 // Index type
-typedef signed long ComplexSizeType;
+typedef ComplexVector::size_type ComplexSizeType;
 
 // Define imaginary number
 std::complex<AmplitudeType> i (0,1);
 
+#define M_PI 3.14159265358979323846264338327950288
+
 // Helper function to define omega in FFT function
-ComplexAmplitude omega2 (long p, long q)
+ComplexAmplitude omega(ComplexSizeType p, ComplexSizeType q)
 {
     //convert constants to real part of complex number
-    ComplexAmplitude E_real (M_E);
-    ComplexAmplitude PI_real (M_PI);
-    ComplexAmplitude p_real (p);
-    ComplexAmplitude q_real (q);
-    ComplexAmplitude two_real (2.0);
+    ComplexAmplitude pComplex (p);
+    ComplexAmplitude qComplex (q);
     
     //printf("Omega called: %li, %li\n", p, q);
     
-    return pow(E_real, (i * (two_real * PI_real) * (q_real / p_real)));
+    ComplexAmplitude exponent = (i * 2.0 * M_PI * qComplex) / pComplex;
+    return std::exp(exponent);
 }
 
-static ComplexVector fftRec(ComplexVector& v, ComplexSizeType num, ComplexSizeType everyN, ComplexSizeType offsetN) {
-    
-    if (num == 1) {
-        // Do nothing?
-    } else {
-        ComplexVector fEven = fftRec(v, num >> 1, everyN << 1, offsetN);
-        ComplexVector fOdd = fftRec(v, num >> 1, everyN << 1, offsetN + 1);
-        
-        for (ComplexSizeType m = offsetN; m < (num * everyN) / 2; m += everyN) {
-            long tmp = -m;
-            ComplexAmplitude omega = omega2(num, tmp);
-            v[m] = fEven[m] + fOdd[m] * omega;
-            v[m + (num * everyN) / 2] = fEven[m] - fOdd[m] * omega;
-        }
+ComplexVector even(ComplexVector input) {
+    ComplexVector result;
+    ComplexSizeType n = input.size();
+    for (int i = 0; i < n; i += 2) {
+        result.push_back(input[i]);
     }
+    return result;
+}
+
+ComplexVector odd(ComplexVector input) {
+    ComplexVector result;
+    ComplexSizeType n = input.size();
+    for (int i = 1; i < n; i += 2) {
+        result.push_back(input[i]);
+    }
+    return result;
+}
+
+ComplexVector fft(ComplexVector input) {
     
-    return v;
+    ComplexVector::size_type n = input.size();
+    
+    if (n == 1) {
+        ComplexVector result(n, input[0]);
+        return result;
+    }
+    else {
+        ComplexVector evens = even(input);
+        ComplexVector odds = odd(input);
+        ComplexVector fEven;
+        fEven = fft(evens);
+        ComplexVector fOdd;
+        fOdd = fft(odds);
+        
+        ComplexVector result (n, 0);
+        for (int i = 0; i < n / 2; i++) {
+            ComplexAmplitude omega2 = omega(n, -i);
+            result[i] = fEven[i] + omega2 * fOdd[i];
+            result[i + n / 2] = fEven[i] - omega2 * fOdd[i];
+        }
+        
+        return result;
+    }
 }
 
 // Define method for turning real vectors to complex, vice versa
-static ComplexVector realVectorToComplex(AmplitudeVector v) {
+ComplexVector realVectorToComplex(AmplitudeVector v) {
     
     const auto size = v.size();
     ComplexVector newVector (size, i);
@@ -69,7 +95,7 @@ static ComplexVector realVectorToComplex(AmplitudeVector v) {
     return newVector;
 }
 
-static AmplitudeVector complexVectorToReal(ComplexVector v) {
+AmplitudeVector complexVectorToReal(ComplexVector v) {
     
     const auto size = v.size();
     AmplitudeVector newVector (size, 0);

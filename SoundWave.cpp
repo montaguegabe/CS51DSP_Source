@@ -68,7 +68,11 @@ AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
          * specific spectrogram, but that's way out of scope */
         
         //for (int i = 0; i < mNumSamples; i++) { -DUMMIED OUT TO KEEP VECTOR SMALL
-        for (int i = 0; i < mNumSamples; i++) {
+        
+        // Rounds down to a power of 2
+        int sampleCap = pow(2, (floor(log2(mNumSamples))));
+        
+        for (int i = 0; i < sampleCap; i++) {
             sample = 0.0;
             for (int j = 0; j < mNumChannels; j++) {
                 sample = sample + buffer.getSample(j, i);
@@ -95,7 +99,9 @@ AmplitudeVector& SoundWave::getAmplitudeFrequencyVector() {
     }*/
     
     auto complexInput = realVectorToComplex(mAmplitudeTimeVector);
-    ComplexVector transform = fftRec(complexInput, complexInput.size(), 1, 0);
+    ComplexVector transform;
+    transform = fft(complexInput);
+    
     mAmplitudeFrequencyVector = complexVectorToReal(transform);
     
     return mAmplitudeFrequencyVector;

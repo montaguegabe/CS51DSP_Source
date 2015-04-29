@@ -127,16 +127,16 @@ void ApplicationDelegate::buttonClicked (Button* button) {
                 // Update the graphs to be connected to the SoundWave object
                 auto vectorPointer = &(mWaveData->getAmplitudeTimeVector());
                 mAmplitudeTimeView.setSource(vectorPointer);
-                //vectorPointer = &(mWaveData->getAmplitudeFrequencyVector());
-                //mAmplitudeFrequencyView.setSource(vectorPointer);
+                vectorPointer = &(mWaveData->getAmplitudeFrequencyVector());
+                mAmplitudeFrequencyView.setSource(vectorPointer);
                 
                 auto vector2DPointer = &(mWaveData->getSpectrogramData());
                 mSpectrogram.setSource(vector2DPointer);
                 
                 // Update the FF label
-                //int ff = mWaveData->getFF();
-                //std::string out = "FF: " + std::to_string(ff);
-                //mFFText.setText(out, dontSendNotification);
+                int ff = mWaveData->getFF();
+                std::string out = "FF: " + std::to_string(ff);
+                mFFText.setText(out, dontSendNotification);
             }
         }
     }
