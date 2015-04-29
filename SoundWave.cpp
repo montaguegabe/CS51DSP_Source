@@ -66,13 +66,13 @@ AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
 	 * specific spectrogram, but that's way out of scope */
 	
 	//for (int i = 0; i < mNumSamples; i++) { -DUMMIED OUT TO KEEP VECTOR SMALL
-	for (int i = 0; i < 1024; i++) {
+	for (int i = 0; i < mNumSamples; i++) {
 		sample = 0.0;
 		for (int j = 0; j < mNumChannels; j++) {
 			sample = sample + buffer.getSample(j, i);
 		}
 		sample = sample / mNumChannels;
-		mAmplitudeTimeVector.push_back(sample * 100);
+		mAmplitudeTimeVector.push_back(sample);
 	}
 
     return mAmplitudeTimeVector;
@@ -85,7 +85,7 @@ AmplitudeVector& SoundWave::getAmplitudeFrequencyVector() {
     
     // Dummy implementation that returns an abs(cosine) wave
     /*for (int i = 0; i < 500; i++) {
-        AmplitudeType value = cos(i / 7.0f) * 100;
+        AmplitudeType value = cos(i / 7.0f);
         if (value < 0) value = -value;
         mAmplitudeFrequencyVector.push_back(value);
     }*/

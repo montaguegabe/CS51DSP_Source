@@ -19,7 +19,7 @@ template <class T>
 VectorContentGraph<T>::VectorContentGraph()
 {
     mSource = nullptr;
-    mHighLow = 128;
+    mHighLow = 2;
     mLeft = 0;
     mSamplesShowing = 100;
     mZeroBottom = false;
@@ -145,7 +145,7 @@ void VectorContentGraph<T>::paint(Graphics &g)  {
 
 // Interaction constants
 #define HighLowChangeFactor 1.5
-#define WindowChangeAmount 0.1
+#define WindowChangeAmount 0.05
 
 // Listener overrides
 template <class T>
@@ -167,7 +167,7 @@ bool VectorContentGraph<T>::keyPressed (const KeyPress &key) {
         setLeft(mLeft + change);
     }
     
-    // Don't consume event
+    // Consume event
     return true;
 }
 

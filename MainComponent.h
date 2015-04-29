@@ -11,7 +11,9 @@
 
 #include <stdio.h>
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "SoundWave.h"
 
+// The main component for the application. Supports vector playback
 class MainContentComponent : public AudioAppComponent {
 public:
     
@@ -19,13 +21,24 @@ public:
     
     ~MainContentComponent();
     
-    void paint (Graphics& g) override;
-    
+    // Plays a vector
+    void playVector(AmplitudeVector& vector, double sampleRate);
     
 private:
     
-    float mPlayIndex;
+    // The playback time
+    double mTime;
     
+    // The source of the vector
+    AmplitudeVector* mSource;
+    
+    // The sample rate of the audio
+    double mSampleRateAudio;
+    double mSampleRateOut;
+    
+    void paint (Graphics& g) override;
+    
+    // Sound overrides
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
     
     void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill) override;

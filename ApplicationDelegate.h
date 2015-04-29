@@ -55,6 +55,7 @@ private:
     MainContentComponent mMainComp;
     
     TextButton mLoadFileButton;
+    TextButton mPlayButton;
     
     Label mAudioTitleText;
     Label mFFText;
@@ -62,9 +63,6 @@ private:
     VectorContentGraph<AmplitudeType> mAmplitudeTimeView;
     VectorContentGraph<AmplitudeType> mAmplitudeFrequencyView;
     Spectrogram<AmplitudeType> mSpectrogram;
-    
-    // The index of playing
-    float mPlayIndex;
     
     //TODO: Define callbacks that will be activated when a user interacts with the GUI
     void buttonClicked (Button* button) override;

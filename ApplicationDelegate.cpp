@@ -46,13 +46,18 @@ void ApplicationDelegate::init(void) {
     // Create FF label
     mFFText.setColour(mAudioTitleText.textColourId, textColor);
     mFFText.setText("FF: ", dontSendNotification);
-    mFFText.setBounds(10, 80, 100, 20);
+    mFFText.setBounds(10, 110, 100, 20);
     mMainComp.addAndMakeVisible(mFFText);
     
     // Create file-loading button
     mLoadFileButton.setButtonText("Load Audio File");
     mLoadFileButton.setBounds(10, 50, 100, 20);
     mMainComp.addAndMakeVisible (mLoadFileButton);
+    
+    // Create play button
+    mPlayButton.setButtonText("Play");
+    mPlayButton.setBounds(10, 80, 100, 20);
+    mMainComp.addAndMakeVisible (mPlayButton);
     
     // Create a vector content graph for the amplitude-time
     mAmplitudeTimeView.setBounds(120, 50, 670, 100);
@@ -69,6 +74,7 @@ void ApplicationDelegate::init(void) {
     
     // Registers the AD to have the buttonClicked function invoked by the button
     mLoadFileButton.addListener(this);
+    mPlayButton.addListener(this);
 }
 
 // Called when the application must quit
@@ -76,6 +82,7 @@ void ApplicationDelegate::shutdown() {
     
     //TODO: Remove all listeners!
     mLoadFileButton.removeListener(this);
+    mPlayButton.removeListener(this);
     
     // Delte our sound wave object
     mWaveData = nullptr;
@@ -120,17 +127,22 @@ void ApplicationDelegate::buttonClicked (Button* button) {
                 // Update the graphs to be connected to the SoundWave object
                 auto vectorPointer = &(mWaveData->getAmplitudeTimeVector());
                 mAmplitudeTimeView.setSource(vectorPointer);
-                vectorPointer = &(mWaveData->getAmplitudeFrequencyVector());
-                mAmplitudeFrequencyView.setSource(vectorPointer);
+                //vectorPointer = &(mWaveData->getAmplitudeFrequencyVector());
+                //mAmplitudeFrequencyView.setSource(vectorPointer);
                 
                 auto vector2DPointer = &(mWaveData->getSpectrogramData());
                 mSpectrogram.setSource(vector2DPointer);
                 
                 // Update the FF label
-                int ff = mWaveData->getFF();
-                std::string out = "FF: " + std::to_string(ff);
-                mFFText.setText(out, dontSendNotification);
+                //int ff = mWaveData->getFF();
+                //std::string out = "FF: " + std::to_string(ff);
+                //mFFText.setText(out, dontSendNotification);
             }
+        }
+    }
+    else if (button == &mPlayButton) {
+        if (mWaveData) {
+            mMainComp.playVector(mWaveData->getAmplitudeTimeVector(), mWaveData->getSampleRate());
         }
     }
 }

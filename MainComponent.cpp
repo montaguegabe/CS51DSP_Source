@@ -10,14 +10,22 @@
 #include "Visuals.h"
 
 MainContentComponent::MainContentComponent() {
-    setSize (windowWidth, windowHeight);
-    mPlayIndex = 0.0f;
     
+    setSize (windowWidth, windowHeight);
+    mTime = 0.0f;
     setAudioChannels (2, 2);
 }
 
 MainContentComponent::~MainContentComponent() {
 
+}
+
+// Plays a vector
+void MainContentComponent::playVector(AmplitudeVector& vector, double sampleRate) {
+    
+    mSource = &vector;
+    mTime = 0.0;
+    mSampleRateAudio = sampleRate;
 }
 
 void MainContentComponent::paint (Graphics& g) {
@@ -28,33 +36,41 @@ void MainContentComponent::paint (Graphics& g) {
 
 // Sound-producing overrides
 void MainContentComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate) {
-    
+    mSampleRateOut = sampleRate;
 }
 
 void MainContentComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill) {
     
-    if (false) {
+    if (!mSource) {
         bufferToFill.clearActiveBufferRegion();
     }
-    else  {
+    else {
+        
+        double timeIncrement = mSampleRateOut / mSampleRateAudio;
         
         bufferToFill.clearActiveBufferRegion();
-        const float originalPhase = mPlayIndex;
         
-        for (int chan = 0; chan < bufferToFill.buffer->getNumChannels(); ++chan)
-        {
-            mPlayIndex = originalPhase;
+        if ((int) (mTime + bufferToFill.numSamples * timeIncrement + 1) >= mSource->size()) {
+            mSource = nullptr;
+        }
+        else {
             
-            float* const channelData = bufferToFill.buffer->getWritePointer (chan, bufferToFill.startSample);
+            const double blockStartTime = mTime;
             
-            for (int i = 0; i < bufferToFill.numSamples ; ++i)
-            {
-                channelData[i] = 0.01f * std::abs(std::sin (mPlayIndex));
+            for (int chan = 0; chan < bufferToFill.buffer->getNumChannels(); ++chan) {
                 
-                // increment the phase step for the next sample
-                mPlayIndex = std::fmod (mPlayIndex + 0.02f, float_Pi * 2.0f);
+                mTime = blockStartTime;
+                
+                float* const channelData = bufferToFill.buffer->getWritePointer (chan, bufferToFill.startSample);
+                
+                long index;
+                for (int i = 0; i < bufferToFill.numSamples ; ++i) {
+                    
+                    index = mTime;
+                    channelData[i] = mSource->at(index);
+                    mTime += timeIncrement;
+                }
             }
-            
         }
     }
 }
