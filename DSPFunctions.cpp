@@ -9,13 +9,12 @@
 #include "DSPFunctions.h"
 
 //dummy starting values; get these from SoundWave
-double amplitudeRange = 1.0; 
-int numSamples = 1024;
+double amplitudeRange = 1.0;
 double sampleRate = 48000.0;
 
 //Adjusts volume of an AmplitudeVector by decibels
 AmplitudeVector volumeChange(AmplitudeVector amplitudes, double decibels){
-	for (int i = 0; i < numSamples; i++) {
+	for (unsigned int i = 0; i < amplitudes.size(); i++) {
 		amplitudes[i] = volumeChangeSample(amplitudes[i], decibels);
 	}
 	return amplitudes;
@@ -32,7 +31,7 @@ AmplitudeVector compression
 
 	//shrinks all amplitudes above threshold by ratio
 	double shrinkValue = 0.0;
-	for (int i = 0; i < numSamples; i++) {
+	for (unsigned int i = 0; i < amplitudes.size(); i++) {
 		currentDB = rawToDecibel(amplitudes[i]);
 		if (currentDB > threshold){
 			shrinkValue = (threshold - currentDB) * ((ratio - 1) / ratio);
@@ -91,7 +90,7 @@ AmplitudeType volumeChangeSample(AmplitudeType amplitude, double decibels){
 //Gets maximum amplitude in a vector
 double getMax(AmplitudeVector amplitudes){
 	double maxValue = 0.0;
-	for (int i = 0; i < numSamples; i++){
+	for (unsigned int i = 0; i < amplitudes.size(); i++){
 		if (amplitudes[i] > maxValue){
 			maxValue = amplitudes[i];
 		}
@@ -117,7 +116,7 @@ double decibelToRaw(double decibel){
 //Sums two amplitude vectors at some offset, capping values at amplitudeRange
 AmplitudeVector sumTwoVectors
 (AmplitudeVector amplitudes1, AmplitudeVector amplitudes2, int offset){
-	for (int i = 0; i < numSamples; i++){
+	for (unsigned int i = 0; i < amplitudes2.size(); i++){
 		amplitudes1[i + offset] += amplitudes2[i];
 		if (amplitudes1[i + offset] > amplitudeRange)
 		{
