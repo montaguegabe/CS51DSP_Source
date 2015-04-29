@@ -128,7 +128,8 @@ void VectorContentGraph<T>::paint(Graphics &g)  {
                 float yOffset = yMiddle * (value / ((float) (mHighLow)));
                 float y = mZeroBottom ? height - yOffset: yMiddle - yOffset;
                 
-                g.fillEllipse (x - graphPointSize / 2, y - graphPointSize / 2, graphPointSize, graphPointSize);
+                if (x > graphPointSize && x < width - graphPointSize && y > graphPointSize && y < height - graphPointSize)
+                    g.fillEllipse (x - graphPointSize / 2, y - graphPointSize / 2, graphPointSize, graphPointSize);
                 g.drawLine(x - graphPixelOffset, previousY, x, y);
                 
                 previousY = y;
