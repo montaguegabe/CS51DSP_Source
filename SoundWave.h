@@ -54,7 +54,7 @@ private:
 	int64 mNumSamples;
 	double mSampleRate;
 	double mLengthInSeconds;
-	bool initializedProperly;
+	bool mInitializedProperly;
 	int mNumChannels;
     int mFF;
 

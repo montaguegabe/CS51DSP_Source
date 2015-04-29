@@ -26,7 +26,7 @@ SoundWave::SoundWave(String filename) {
 	bool fileNonZero = mNumSamples > 0;
 
 
-	initializedProperly = 
+	mInitializedProperly =
 	   (fileExists &&
 		filePathCorrect &&
 		fileNonZero
@@ -37,7 +37,7 @@ SoundWave::SoundWave(String filename) {
 // Returns if an error occured during initialization
 bool SoundWave::errorDuringInit() {
 
-	return !initializedProperly;
+	return !mInitializedProperly;
 }
 
 // Returns the sound's duration in seconds
@@ -49,31 +49,35 @@ double SoundWave::getDurationSeconds() {
 
 // Returns a vector of the waveform
 AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
-      
-	//initialize variables
-	AmplitudeType sample;
-	mAmplitudeTimeVector.clear();	
-	
-	//Creates & fills sample buffer equal to the length of a file
-	AudioSampleBuffer buffer(mNumChannels, mNumSamples);
-	buffer.clear();
-	mAudioReader->read(&buffer, 0, mNumSamples, 0, true, true);
 
-	/* Fills a vector with samples from the buffer, normalized between 
-	 * -100.0 and 100.0. For multichannel tracks, all samples at a given time
-	 * are averaged. Better would be an array of vector of each individual
-	 * channel, so we could perform an FFT on each and display each channel's 
-	 * specific spectrogram, but that's way out of scope */
-	
-	//for (int i = 0; i < mNumSamples; i++) { -DUMMIED OUT TO KEEP VECTOR SMALL
-	for (int i = 0; i < mNumSamples; i++) {
-		sample = 0.0;
-		for (int j = 0; j < mNumChannels; j++) {
-			sample = sample + buffer.getSample(j, i);
-		}
-		sample = sample / mNumChannels;
-		mAmplitudeTimeVector.push_back(sample);
-	}
+    // Only populate vector on first call (lazily do work)
+    if (mAmplitudeTimeVector.size() == 0) {
+        
+        // Initialize variables
+        AmplitudeType sample;
+        
+        // Creates & fills sample buffer equal to the length of a file
+        AudioSampleBuffer buffer(mNumChannels, mNumSamples);
+        buffer.clear();
+        mAudioReader->read(&buffer, 0, mNumSamples, 0, true, true);
+        
+        /* Fills a vector with samples from the buffer, normalized between
+         * -1.0 and 1.0. For multichannel tracks, all samples at a given time
+         * are averaged. Better would be an array of vector of each individual
+         * channel, so we could perform an FFT on each and display each channel's
+         * specific spectrogram, but that's way out of scope */
+        
+        //for (int i = 0; i < mNumSamples; i++) { -DUMMIED OUT TO KEEP VECTOR SMALL
+        for (int i = 0; i < mNumSamples; i++) {
+            sample = 0.0;
+            for (int j = 0; j < mNumChannels; j++) {
+                sample = sample + buffer.getSample(j, i);
+            }
+            sample = sample / mNumChannels;
+            mAmplitudeTimeVector.push_back(sample);
+        }
+        
+    }
 
     return mAmplitudeTimeVector;
 }
