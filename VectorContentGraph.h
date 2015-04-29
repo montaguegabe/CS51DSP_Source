@@ -98,6 +98,6 @@ private:
     void resized() override;
 };
 
-#include "VectorContentGraph.cpp"
+#include "VectorContentGraphCpp.h"
 
 #endif /* defined(__CS51DigitalSignalProcessor__VectorContentGraph__) */
