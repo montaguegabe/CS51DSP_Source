@@ -26,12 +26,12 @@ AmplitudeVector volumeChange(AmplitudeVector amplitudes, double decibels);
 AmplitudeVector compression(AmplitudeVector amplitudes, double threshold, double ratio);
 
 //Adds delay
-AmplitudeVector delay(AmplitudeVector amplitudes, float delayInSeconds, float feedback);
+AmplitudeVector delay(AmplitudeVector amplitudes, double delayInSeconds, double feedback);
 
-//Pitch shifts an AV by cents
+//Pitch shifts an AV by cents; no time preservation
 AmplitudeVector pitchShift(AmplitudeVector amplitudes, int cents);
 
-//Stretches an AV by percentage stretch
+//Stretches an AV by percentage stretch; no pitch preservation
 AmplitudeVector timeStretch(AmplitudeVector amplitudes, double stretch);
 
 //Adjusts volume of a single sample
@@ -46,5 +46,8 @@ double rawToDecibel(double rawAmp);
 //Converts decibel to raw amplitude
 double decibelToRaw(double decibel);
 
+//Sums two amplitude vectors at some offset, capping values at amplitudeRange
+AmplitudeVector sumTwoVectors
+  (AmplitudeVector amplitudes1, AmplitudeVector amplitudes2, int offset);
 
 #endif /* defined(__CS51DigitalSignalProcessor__DSPFunctions__) */
