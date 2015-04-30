@@ -116,31 +116,48 @@ void VectorContentGraph<T>::paint(Graphics &g)  {
         IndexType deltaI = xToIndex(graphPixelOffset, getWidth(), mSamplesShowing, 0);
         if (deltaI < 1) deltaI = 1;
         
-        float previousY = yMiddle;
+        float previousY = mZeroBottom ? height : yMiddle;
         
         for (int x = 0, i = mLeft; x < width; x += graphPixelOffset, i+= deltaI) {
             
             if (i >= 0 && i < totalSamples) {
                 
                 // Cleared for drawing
-                float value = (mSource->at(i));
+                
+                // Calculate average
+                float value = mSource->at(i);
                 
                 float yOffset = yMiddle * (value / ((float) (mHighLow)));
                 float y = mZeroBottom ? height - yOffset: yMiddle - yOffset;
                 
-                if (x > graphPointSize && x < width - graphPointSize && y > graphPointSize && y < height - graphPointSize)
+                if (x > graphPointSize && x < width - graphPointSize
+                                       && y > graphPointSize
+                                       && y < height - graphPointSize
+                                       && !(y == previousY))
                     g.fillEllipse (x - graphPointSize / 2, y - graphPointSize / 2, graphPointSize, graphPointSize);
+                
                 g.drawLine(x - graphPixelOffset, previousY, x, y);
                 
                 previousY = y;
             }
+            else {
+                
+                // Fill in the line without a value
+                float zeroY = mZeroBottom ? height : yMiddle;
+                g.drawLine(x - graphPixelOffset, zeroY, x, zeroY);
+            }
         }
         
-    } else {
-        // Draw a flat line or some other indicator
-        g.setColour(Colours::red);
-        g.drawLine(0, yMiddle, width, yMiddle);
+        // Draw base line
+        g.setColour(Colour::fromRGB(128, 128, 128));
         
+    } else {
+        
+        // Base line if empty
+        g.setColour(graphBaseLineEmptyColor);
+        if (mZeroBottom)
+            g.drawLine(0, height, width, height);
+        else g.drawLine(0, yMiddle, width, yMiddle);
     }
 }
 
@@ -166,6 +183,14 @@ bool VectorContentGraph<T>::keyPressed (const KeyPress &key) {
     else if (key == KeyPress::rightKey) {
         auto change = mSamplesShowing * WindowChangeAmount;
         setLeft(mLeft + change);
+    }
+    else if (key == KeyPress(61)) {
+        auto change = mSamplesShowing * WindowChangeAmount;
+        setSamplesShowing(mSamplesShowing - change);
+    }
+    else if (key == KeyPress(45)) {
+        auto change = mSamplesShowing * WindowChangeAmount;
+        setSamplesShowing(mSamplesShowing + change);
     }
     
     // Consume event

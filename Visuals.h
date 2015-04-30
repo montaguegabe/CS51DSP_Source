@@ -17,6 +17,7 @@
 #define graphBgColor Colour::fromRGB(15, 20, 80)
 #define graphPointColor Colour::fromRGB(255, 255, 255)
 #define graphPixelOffset 1
+#define graphBaseLineEmptyColor Colours::red
 
 // Define point size for graphs
 #define graphPointSize 2

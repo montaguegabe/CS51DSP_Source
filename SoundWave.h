@@ -17,6 +17,12 @@
 typedef double AmplitudeType;
 typedef std::vector<AmplitudeType> AmplitudeVector;
 
+// Limit for samples
+#define log2SampleMax 27
+#define sampleMax 134217728
+#define log2SampleMin 10
+#define sampleMin 1024
+
 // A container class for sound data, capable of analysis
 class SoundWave {
 public:
@@ -53,7 +59,7 @@ private:
 	FileInputStream* mInputStream;
     
 	int64 mNumSamples;
-    int64 mLog2Samples;
+    unsigned int mLog2Samples;
     
 	double mSampleRate;
 	double mLengthInSeconds;

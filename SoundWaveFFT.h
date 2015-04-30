@@ -281,16 +281,6 @@ struct GFFTList<FFT,End,End,T,FactoryPolicy> {
 
 #pragma mark Final FFT Function
 
-// Checks if the number is a power of two.
-static int isPowerOfTwo(unsigned int x)
-{
-    while (((x % 2) == 0) && x > 1) x /= 2;
-    return (x == 1);
-}
-
-// Note that this implementation restricts the input sound sample to
-// between 0.023 seconds and 50 minutes in length.
-
 // NOTE that this function ONLY takes inputs with power of 2 sample numbers
 static void fftVariableSamplePow2(AmplitudeVector& input, unsigned int powerOf2) {
     

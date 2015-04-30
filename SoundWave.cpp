@@ -8,6 +8,7 @@
 
 #include "SoundWave.h"
 #include "SoundWaveFFT.h"
+#include "FastIntPowerOperations.h"
 
 // Initializes a sound wave instance from an audio file
 SoundWave::SoundWave(String filename) {
@@ -69,17 +70,21 @@ AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
          * specific spectrogram, but that's way out of scope */
         
         // Rounds down to a power of 2. Not ideal
-        // TODO: Fix
-        mLog2Samples = floor(log2(mNumSamples));
-        int sampleCap = pow(2, mLog2Samples);
+        //mLog2Samples = ceil(log2(mNumSamples));
+        mLog2Samples = log2Int(mNumSamples) + 1;
+        int sampleCap = 1<<mLog2Samples;
         
-        for (int i = 0; i < sampleCap; i++) {
+        for (int i = 0; i < mNumSamples; i++) {
             sample = 0.0;
             for (int j = 0; j < mNumChannels; j++) {
                 sample = sample + buffer.getSample(j, i);
             }
             sample = sample / mNumChannels;
             mAmplitudeTimeVector.push_back(sample);
+        }
+        
+        for (int i = mNumSamples; i < sampleCap; i++) {
+            mAmplitudeTimeVector.push_back(0);
         }
     }
 
