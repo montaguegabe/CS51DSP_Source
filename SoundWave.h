@@ -47,6 +47,7 @@ public:
     
     // Fundamental frequency
     int getFF();
+    unsigned int getFFIndex();
     
     // Get sample rate
     double getSampleRate();

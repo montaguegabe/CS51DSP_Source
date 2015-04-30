@@ -113,7 +113,7 @@ AmplitudeVector& SoundWave::getAmplitudeFrequencyVector() {
         fftVariableSamplePow2(mAmplitudeFrequencyVector, mLog2Samples);
         
         // Discard imaginary
-        for (int i = 0; i < outputElements; i++) {
+        for (int i = 0; i < outputElements - 1; i++) {
             mAmplitudeFrequencyVector[i] = std::abs(mAmplitudeFrequencyVector[i * 2]);
         }
         mAmplitudeFrequencyVector.resize(inputSamples);
@@ -133,8 +133,9 @@ std::vector<AmplitudeVector>& SoundWave::getSpectrogramData() {
         AmplitudeType* amplitudeTime = getAmplitudeTimeVector().data();
         
         // Number of blocks
-        unsigned int samplesPerBlock = 1 << mLog2DiscreteInterval;
-        unsigned int numBlocks = (1 << mLog2Samples) / samplesPerBlock;
+        const unsigned int samplesPerBlock = 1 << mLog2DiscreteInterval;
+        const unsigned int totalSamples = (1 << mLog2Samples);
+        const unsigned int numBlocks = totalSamples / samplesPerBlock;
         //if (numBlocks > 0) numBlocks--;
         
         for (int i = 0; i < numBlocks; i++) {
@@ -148,9 +149,13 @@ std::vector<AmplitudeVector>& SoundWave::getSpectrogramData() {
             // Transform slice to fourier transform
             fftVariableSamplePow2(slice, mLog2DiscreteInterval);
             
-            // Discard imaginary
+            // Average in imaginary
             for (int j = 0; j < samplesPerBlock; j++) {
-                slice[j] = std::abs(slice[j * 2]);
+                //slice[j] = std::abs(slice[j * 2]);
+                AmplitudeType real = slice[j * 2];
+                AmplitudeType im = slice[j * 2 + 1];
+                //slice[j] = sqrt(real * real + im * im);
+                slice[j] = real * real + im * im;
             }
             slice.resize(samplesPerBlock);
             
@@ -184,8 +189,14 @@ int SoundWave::getFF() {
             }
         }
         
-        mFF = maxIndex;
+        mFF = mSampleRate * maxIndex / (1 << mLog2Samples);
     }
     
     return mFF;
+}
+
+unsigned int SoundWave::getFFIndex() {
+    
+    auto ff = getFF();
+    return ff * (1 << mLog2Samples) / mSampleRate;
 }

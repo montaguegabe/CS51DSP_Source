@@ -60,7 +60,7 @@ private:
     IndexType mLeft;
     IndexType mSamplesShowing;
     bool mZeroBottom;
-    unsigned int mFreq = -1;
+    unsigned int mFreq;
     
     // Overrides for component
     void paint(Graphics &g) override;

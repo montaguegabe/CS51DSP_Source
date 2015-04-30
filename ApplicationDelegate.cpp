@@ -149,7 +149,7 @@ void ApplicationDelegate::buttonClicked (Button* button) {
                 int ff = mWaveData->getFF();
                 std::string out = "FF: " + std::to_string(ff);
                 mFFText.setText(out, dontSendNotification);
-                mAmplitudeFrequencyView.setFreqHilite(mWaveData->getFF());
+                mAmplitudeFrequencyView.setFreqHilite(mWaveData->getFFIndex());
             }
         }
     }

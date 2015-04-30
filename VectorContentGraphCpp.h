@@ -23,6 +23,7 @@ VectorContentGraph<T>::VectorContentGraph()
     mLeft = 0;
     mSamplesShowing = 100;
     mZeroBottom = false;
+    mFreq = INT32_MAX;
     this->setWantsKeyboardFocus(true);
 }
 
@@ -127,7 +128,7 @@ void VectorContentGraph<T>::paint(Graphics &g)  {
             
             if (i >= 0 && i < totalSamples) {
                 
-                if (abs(mFreq - i) < deltaI * 3) g.setColour (graphBaseLineEmptyColor);
+                if (abs(mFreq - i) < deltaI * 3 && mZeroBottom) g.setColour (graphBaseLineEmptyColor);
                 else g.setColour(graphPointColor);
                 
                 // Cleared for drawing
@@ -236,7 +237,10 @@ void Spectrogram<T>::setSource(std::vector<std::vector<T>>* input) {
         
         // Size the bounds according to size
         mLeft = 0;
+        
+        // Don't include the last column because it is half-full of data.
         mRight = input->size();
+        
         if (mRight != 0)
         {
             mTop = 0;
@@ -314,4 +318,3 @@ bool Spectrogram<T>::keyPressed (const KeyPress &key) {
     // Consume event
     return true;
 }
-
