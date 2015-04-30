@@ -7,6 +7,9 @@
 //
 
 #include "SoundWave.h"
+#include "Loki/Typelist.h"
+#include "Loki/Factory.h"
+#include <exception>
 
 #pragma mark Template-based Trigonometric Substitutions
 
@@ -56,7 +59,7 @@ struct Cos<B,A,double> {
 };
 
 #pragma mark Reindexing
-
+/*
 // Reverse-binary reindexing function
 template <typename T>
 static void scramble(T* data, unsigned long n) {
@@ -77,7 +80,8 @@ static void scramble(T* data, unsigned long n) {
         j += m;
     };
 }
-
+*/
+ 
 #pragma mark Main Algorithm
 
 /*template<unsigned N, typename T=double>
@@ -183,7 +187,7 @@ class DanielsonLanczos<1,T> {
 public:
     void apply(T* data) { }
 };
-
+/*
 template<unsigned P,
 typename T=double>
 class GFFT {
@@ -194,7 +198,105 @@ public:
         scramble<T>(data,N);
         recursion.apply(data);
     }
+};*/
+
+#pragma mark Algorithm Template Implementation
+
+template<typename T>
+class AbstractFFT {
+public:
+    virtual void fft(T*) = 0;
 };
 
-#pragma mark Sample Number-Independent Factory Interface
+class EmptyFFT { };
 
+template<unsigned P, typename T=double,
+class FactoryPolicy=EmptyFFT>
+class GFFT:public FactoryPolicy {
+    enum { N = 1<<P };
+    DanielsonLanczos<N,T> recursion;
+    void scramble(T* data) {
+        int i,m,j=1;
+        for (i=1; i<2*N; i+=2) {
+            if (j>i) {
+                std::swap<T>(data[j-1], data[i-1]);
+                std::swap<T>(data[j], data[i]);
+            }
+            m = N;
+            while (m>=2 && j>m) {
+                j -= m;
+                m >>= 1;
+            }
+            j += m;
+        }
+    }
+public:
+    enum { id = P };
+    static FactoryPolicy* Create() {
+        return new GFFT<P,T,FactoryPolicy>();
+    }
+    void fft(T* data) {
+        scramble(data);
+        recursion.apply(data);
+    }
+};
+
+#pragma mark Loki Factory Methods
+
+template<class TList>
+struct FactoryInit;
+
+template<class H, class T>
+struct FactoryInit<Loki::Typelist<H,T> > {
+    template<class Fact>
+    static void apply(Fact& f) {
+        f.Register(H::id,H::Create);
+        FactoryInit<T>::apply(f);
+    }
+};
+
+template<>
+struct FactoryInit<Loki::NullType> {
+    template<class Fact>
+    static void apply(Fact&) { }
+};
+
+template<
+template<unsigned,class,class> class FFT,
+unsigned Begin, unsigned End,
+typename T=double,
+class FactoryPolicy=AbstractFFT<T> >
+struct GFFTList {
+    typedef Loki::Typelist<FFT<Begin,T,FactoryPolicy>,
+    typename GFFTList<FFT,Begin+1,End,T,
+    FactoryPolicy>::Result> Result;
+};
+
+template<
+template<unsigned,class,class> class FFT,
+unsigned End, typename T, class FactoryPolicy>
+struct GFFTList<FFT,End,End,T,FactoryPolicy> {
+    typedef Loki::NullType Result;
+};
+
+#pragma mark Final FFT Function
+
+// Checks if the number is a power of two.
+static int isPowerOfTwo(unsigned int x)
+{
+    while (((x % 2) == 0) && x > 1) x /= 2;
+    return (x == 1);
+}
+
+// Note that this implementation restricts the input sound sample to
+// between 0.023 seconds and 50 minutes in length.
+
+// NOTE that this function ONLY takes inputs with power of 2 sample numbers
+static void fftVariableSamplePow2(AmplitudeVector& input, unsigned int powerOf2) {
+    
+    Loki::Factory<AbstractFFT<AmplitudeType>,unsigned int> gfft_factory;
+    FactoryInit<GFFTList<GFFT,10,27>::Result>::apply(gfft_factory);
+    AbstractFFT<double>* gfft = gfft_factory.CreateObject(powerOf2);
+    input.push_back(0);
+    gfft->fft(input.data());
+}

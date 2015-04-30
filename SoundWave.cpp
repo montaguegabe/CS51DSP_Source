@@ -81,7 +81,6 @@ AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
             sample = sample / mNumChannels;
             mAmplitudeTimeVector.push_back(sample);
         }
-        
     }
 
     return mAmplitudeTimeVector;
@@ -95,14 +94,7 @@ AmplitudeVector& SoundWave::getAmplitudeFrequencyVector() {
         
         // Copy amplitude time vector over
         mAmplitudeFrequencyVector = mAmplitudeTimeVector;
-        mAmplitudeFrequencyVector.push_back(0);
-        
-        // Get the array representation
-        AmplitudeType* array = mAmplitudeFrequencyVector.data();
-        
-        //mLog2Samples
-        GFFT<18, AmplitudeType> calculator;
-        calculator.fft(array);
+        fftVariableSamplePow2(mAmplitudeFrequencyVector, mLog2Samples);
     }
     
     return mAmplitudeFrequencyVector;
