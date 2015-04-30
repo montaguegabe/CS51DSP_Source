@@ -9,6 +9,8 @@
 #include "ApplicationDelegate.h"
 #include "JuceApplication.h"
 #include "MainComponent.h"
+#include "DSPEffects.h"
+
 #include <math.h>
 #include <string>
 
@@ -120,6 +122,13 @@ void ApplicationDelegate::buttonClicked (Button* button) {
                                         dontSendNotification);
             }
             else {
+                
+                //TODO: Take this out!
+                // Apply an effect by code. Should be done by GUI later
+                VolumeChangeEffect effect(2.0f);
+                SoundWave* waveData = mWaveData; // Change from scoped pointer to reference
+                effect.apply(*waveData);
+                
                 // Set the text to match
                 mAudioTitleText.setText(audioFile.getFileNameWithoutExtension(),
                                         dontSendNotification);
