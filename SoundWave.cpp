@@ -13,6 +13,7 @@
 // Initializes a sound wave instance from an audio file
 SoundWave::SoundWave(String filename) {
     
+    // Initialize variables
     mFF = -1;
 	mFormatManager.registerBasicFormats();
 	mAudioFile = File(filename);
@@ -27,13 +28,15 @@ SoundWave::SoundWave(String filename) {
 	mLengthInSeconds = mNumSamples / mSampleRate;
 	bool fileNonZero = mNumSamples > 0;
 
-
 	mInitializedProperly =
 	   (fileExists &&
 		filePathCorrect &&
 		fileNonZero
 		);
-		
+    
+    // Set the discrete spectrogram interval to around an eigth of a second
+    // (2^12 is around 5000 samples, which is around 1/8 of a second)
+    mLog2DiscreteInterval = 12; //12;
 }
 
 // Returns if an error occured during initialization
@@ -98,8 +101,22 @@ AmplitudeVector& SoundWave::getAmplitudeFrequencyVector() {
     if (mAmplitudeFrequencyVector.size() == 0) {
         
         // Copy amplitude time vector over
-        mAmplitudeFrequencyVector = mAmplitudeTimeVector;
+        const unsigned int outputElements = 1 << (mLog2Samples + 1);
+        const unsigned int inputSamples = 1 << mLog2Samples;
+        
+        // Complex input should be 0
+        mAmplitudeFrequencyVector.resize(outputElements, 0);
+        for (int i = 0; i < inputSamples; i++) {
+            mAmplitudeFrequencyVector[i * 2] = mAmplitudeTimeVector[i];
+        }
+        
         fftVariableSamplePow2(mAmplitudeFrequencyVector, mLog2Samples);
+        
+        // Discard imaginary
+        for (int i = 0; i < outputElements; i++) {
+            mAmplitudeFrequencyVector[i] = std::abs(mAmplitudeFrequencyVector[i * 2]);
+        }
+        mAmplitudeFrequencyVector.resize(inputSamples);
     }
     
     return mAmplitudeFrequencyVector;
@@ -109,21 +126,37 @@ AmplitudeVector& SoundWave::getAmplitudeFrequencyVector() {
 // for each small window of time throughout the audio.
 std::vector<AmplitudeVector>& SoundWave::getSpectrogramData() {
     
-    //TODO: Implement
-    
-    mSpectrogramData.clear();
-    
-    // Dummy implementation that returns some nice blobs
-    for (int i = 0; i < 500; i++) {
+    // Lazy calculation
+    if (mSpectrogramData.size() == 0) {
         
-        AmplitudeVector newVector;
-        for (int j = 0; j < 500; j++) {
+        // Get amplitude time vector as an array
+        AmplitudeType* amplitudeTime = getAmplitudeTimeVector().data();
+        
+        // Number of blocks
+        unsigned int samplesPerBlock = 1 << mLog2DiscreteInterval;
+        unsigned int numBlocks = (1 << mLog2Samples) / samplesPerBlock;
+        //if (numBlocks > 0) numBlocks--;
+        
+        for (int i = 0; i < numBlocks; i++) {
             
-            AmplitudeType value = sin(i / 7.0f) * cos(j / 7.0f) * 128;
-            newVector.push_back(value);
+            // Allocate new vector for the slice and copy over values
+            AmplitudeVector slice(samplesPerBlock * 2, 0);
+            for (int j = 0; j < samplesPerBlock; j++) {
+                slice[j * 2] = amplitudeTime[i * samplesPerBlock + j];
+            }
+            
+            // Transform slice to fourier transform
+            fftVariableSamplePow2(slice, mLog2DiscreteInterval);
+            
+            // Discard imaginary
+            for (int j = 0; j < samplesPerBlock; j++) {
+                slice[j] = std::abs(slice[j * 2]);
+            }
+            slice.resize(samplesPerBlock);
+            
+            // Add transformed slice to spectrogram data
+            mSpectrogramData.push_back(slice);
         }
-        
-        mSpectrogramData.push_back(newVector);
     }
     
     return mSpectrogramData;
@@ -140,18 +173,18 @@ int SoundWave::getFF() {
     if (mFF == -1) {
         
         AmplitudeType maximum = 0;
-        int maxFreq = 0;
+        int maxIndex = 0;
         
         int size = mAmplitudeFrequencyVector.size();
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < size / 2; i++) {
             AmplitudeType value = mAmplitudeFrequencyVector[i];
             if (value > maximum) {
                 maximum = value;
-                maxFreq = i;
+                maxIndex = i;
             }
         }
         
-        mFF = maxFreq;
+        mFF = maxIndex;
     }
     
     return mFF;

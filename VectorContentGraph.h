@@ -48,6 +48,9 @@ public:
     IndexType getLeft();
     IndexType getSamplesShowing();
     
+    // Highlighting
+    void setFreqHilite(unsigned int freq) { mFreq = freq; repaint(); }
+    
 private:
     // The source of the grapher. Can be null.
     std::vector<T>* mSource;
@@ -57,6 +60,7 @@ private:
     IndexType mLeft;
     IndexType mSamplesShowing;
     bool mZeroBottom;
+    unsigned int mFreq = -1;
     
     // Overrides for component
     void paint(Graphics &g) override;
@@ -77,7 +81,7 @@ public:
     // Sets the vector to draw via pointer
     void setSource(std::vector<std::vector<T>>* input);
     
-    void setWhiteAmplitude(T max) { mMaxAmplitude = max; }
+    void setWhiteAmplitude(T max) { mMaxAmplitude = max; repaint(); }
     
     // Clears the source of the grapher
     void clear();
@@ -96,6 +100,9 @@ private:
     // Overrides
     void paint(Graphics &g) override;
     void resized() override;
+    
+    // Overrides for key listener
+    bool keyPressed (const KeyPress &key) override;
 };
 
 #include "VectorContentGraphCpp.h"

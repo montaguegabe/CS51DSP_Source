@@ -282,11 +282,13 @@ struct GFFTList<FFT,End,End,T,FactoryPolicy> {
 #pragma mark Final FFT Function
 
 // NOTE that this function ONLY takes inputs with power of 2 sample numbers
+// NOTE TOO that the input vector must be alternating real/complex
 static void fftVariableSamplePow2(AmplitudeVector& input, unsigned int powerOf2) {
     
     Loki::Factory<AbstractFFT<AmplitudeType>,unsigned int> gfft_factory;
     FactoryInit<GFFTList<GFFT,10,27>::Result>::apply(gfft_factory);
-    AbstractFFT<double>* gfft = gfft_factory.CreateObject(powerOf2);
+    AbstractFFT<AmplitudeType>* gfft = gfft_factory.CreateObject(powerOf2);
+    
     input.push_back(0);
     gfft->fft(input.data());
 }

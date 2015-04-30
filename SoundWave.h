@@ -53,32 +53,34 @@ public:
     
 private:
 
+    // File loading variables
 	AudioFormatManager mFormatManager;
 	AudioFormatReader* mAudioReader;
 	File mAudioFile;
 	FileInputStream* mInputStream;
     
+    // Samples/rate/channels
 	int64 mNumSamples;
     unsigned int mLog2Samples;
-    
 	double mSampleRate;
 	double mLengthInSeconds;
+    int mNumChannels;
+    
+    // Whether the object was initialized properly
 	bool mInitializedProperly;
-	int mNumChannels;
+    
+    // The fundamental freq of the sound
     int mFF;
-
-	//TODO: Declare private methods
-
+    
     // Holds amplitude over time
     AmplitudeVector mAmplitudeTimeVector;
     
-    // Holds amplitude over frequency
-    AmplitudeVector mAmplitudeFrequencyVector;
-    
     // Holds spectrogram data
     std::vector<AmplitudeVector> mSpectrogramData;
+    unsigned int mLog2DiscreteInterval;
     
-    //TODO: Declare private methods/variables, e.g. sampling rate
+    // Holds amplitude over frequency
+    AmplitudeVector mAmplitudeFrequencyVector;
 };
 
 #endif /* defined(__CS51DigitalSignalProcessor__SoundWave__) */

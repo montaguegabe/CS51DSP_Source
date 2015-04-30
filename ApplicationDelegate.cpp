@@ -110,6 +110,9 @@ void ApplicationDelegate::buttonClicked (Button* button) {
             File audioFile (myChooser.getResult());
             String path = audioFile.getFullPathName();
             
+            // Free the old sound wave
+            mWaveData = nullptr;
+            
             // Initialize a sound wave instance, passing the file to the constructor.
             mWaveData = new SoundWave(path);
             
@@ -125,9 +128,9 @@ void ApplicationDelegate::buttonClicked (Button* button) {
                 
                 //TODO: Take this out!
                 // Apply an effect by code. Should be done by GUI later
-                VolumeChangeEffect effect(2.0f);
-                SoundWave* waveData = mWaveData; // Change from scoped pointer to reference
-                effect.apply(*waveData);
+                //VolumeChangeEffect effect(2.0f);
+                //SoundWave* waveData = mWaveData; // Change from scoped pointer to reference
+                //effect.apply(*waveData);
                 
                 // Set the text to match
                 mAudioTitleText.setText(audioFile.getFileNameWithoutExtension(),
@@ -142,10 +145,11 @@ void ApplicationDelegate::buttonClicked (Button* button) {
                 auto vector2DPointer = &(mWaveData->getSpectrogramData());
                 mSpectrogram.setSource(vector2DPointer);
                 
-                // Update the FF label
+                // Update the FF labeling
                 int ff = mWaveData->getFF();
                 std::string out = "FF: " + std::to_string(ff);
                 mFFText.setText(out, dontSendNotification);
+                mAmplitudeFrequencyView.setFreqHilite(mWaveData->getFF());
             }
         }
     }

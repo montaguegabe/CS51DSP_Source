@@ -116,11 +116,19 @@ void VectorContentGraph<T>::paint(Graphics &g)  {
         IndexType deltaI = xToIndex(graphPixelOffset, getWidth(), mSamplesShowing, 0);
         if (deltaI < 1) deltaI = 1;
         
+        // Hack for FFT viewer: ignore imaginary output
+        /*if (mZeroBottom) {
+            deltaI += deltaI % 2;
+        }*/
+        
         float previousY = mZeroBottom ? height : yMiddle;
         
         for (int x = 0, i = mLeft; x < width; x += graphPixelOffset, i+= deltaI) {
             
             if (i >= 0 && i < totalSamples) {
+                
+                if (abs(mFreq - i) < deltaI * 3) g.setColour (graphBaseLineEmptyColor);
+                else g.setColour(graphPointColor);
                 
                 // Cleared for drawing
                 
@@ -209,7 +217,7 @@ void VectorContentGraph<T>::resized() {
 template <class T>
 Spectrogram<T>::Spectrogram() {
     mSource = nullptr;
-    mMaxAmplitude = 128;
+    mMaxAmplitude = 1;
     mBottom = 0;
     mTop = 100;
     mLeft = 0;
@@ -223,17 +231,20 @@ void Spectrogram<T>::setSource(std::vector<std::vector<T>>* input) {
     if (!input) {
         throw std::invalid_argument("Tried to init graph with nullptr.");
     } else {
+        
         mSource = input;
         
         // Size the bounds according to size
         mLeft = 0;
         mRight = input->size();
-        mTop = 0;
-        mBottom = input->at(0).size();
-        
-        // Paint
-        this->repaint();
-        
+        if (mRight != 0)
+        {
+            mTop = 0;
+            mBottom = input->at(0).size();
+            
+            // Paint
+            this->repaint();
+        }
     }
 }
 
@@ -241,10 +252,13 @@ template <class T>
 void Spectrogram<T>::paint(Graphics &g) {
     
     g.fillAll(graphBgColor);
+    g.setImageResamplingQuality(Graphics::lowResamplingQuality);
     
     // Calculate the point x offset and middle y
     float xOffset = ((float) this->getWidth()) / (mRight - mLeft);
+    //if (xOffset < 1) xOffset = 1;
     float yOffset = ((float) this->getHeight()) / (mBottom - mTop);
+    //if (yOffset < 1) yOffset = 1;
     
     if (mSource) {
         
@@ -268,7 +282,7 @@ void Spectrogram<T>::paint(Graphics &g) {
                 
                 float y = j * yOffset;
                 
-                float scalar = ((float) heightVector.at(j)) / mMaxAmplitude;
+                double scalar = ((T) heightVector.at(j)) / mMaxAmplitude;
                 g.setColour(Colour::fromHSV(0.0f, 0.0f, scalar, 1.0f));
                 auto rect = Rectangle<float>(x, y, xOffset, yOffset);
                 g.fillRect(rect);
@@ -284,5 +298,20 @@ void Spectrogram<T>::paint(Graphics &g) {
 template <class T>
 void Spectrogram<T>::resized() {
     this->repaint();
+}
+
+// Listener overrides
+template <class T>
+bool Spectrogram<T>::keyPressed (const KeyPress &key) {
+    
+    if (key == KeyPress(61)) {
+        setWhiteAmplitude(mMaxAmplitude / HighLowChangeFactor);
+    }
+    else if (key == KeyPress(45)) {
+        setWhiteAmplitude(mMaxAmplitude * HighLowChangeFactor);
+    }
+    
+    // Consume event
+    return true;
 }
 
