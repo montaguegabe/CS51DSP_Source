@@ -74,30 +74,5 @@ private:
     float mFeedback;
 };
 
-#pragma mark Pitch Shift
-
-class PitchShiftEffect : DSPEffect {
-public:
-    PitchShiftEffect(int cents) { mCents = cents; }
-    ~PitchShiftEffect() override;
-    
-    void apply(SoundWave& target) override;
-    
-private:
-    int mCents;
-};
-
-#pragma mark Time Stretch
-
-class TimeStretch : DSPEffect {
-public:
-    TimeStretch(double stretch) { mStretch = stretch; }
-    ~TimeStretch() override;
-    
-    void apply(SoundWave& target) override;
-    
-private:
-    double mStretch;
-};
 
 #endif /* defined(__CS51DigitalSignalProcessor__DSPFunctions__) */

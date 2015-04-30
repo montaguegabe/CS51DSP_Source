@@ -53,6 +53,21 @@ static double decibelToRaw(double decibel, AmplitudeType amplitudeRange) {
     return rawAmp;
 }
 
+static void sumTwoVectors
+(AmplitudeVector& amplitudes1, AmplitudeVector& amplitudes2, int offset, float amplitudeRange){
+	auto size = amplitudes2.size();
+	for (unsigned int i = 0; i < size; i++){
+		amplitudes1[i + offset] += amplitudes2[i];
+		if (amplitudes1[i + offset] > amplitudeRange)
+		{
+			amplitudes1[i + offset] = amplitudeRange;
+		}
+		else if (amplitudes1[i + offset] < -amplitudeRange){
+			amplitudes1[i + offset] = -amplitudeRange;
+		}
+	}
+}
+
 #pragma mark Effect Implementations
 
 void DSPEffect::apply(SoundWave& target) { }
@@ -97,15 +112,29 @@ void CompressorEffect::apply(SoundWave &target) {
 }
 CompressorEffect::~CompressorEffect() { }
 
-// TODO: Change below to match the format above. See header file for instance
-// variables of each effect.
-
 //Adds delay
-AmplitudeVector delay
-  (AmplitudeVector& amplitudes, float delayInSeconds, float feedback);
+void DelayEffect::apply(SoundWave &target)
+{
+	AmplitudeVector& amplitudes = target.getAmplitudeTimeVector();
+	AmplitudeVector delayTemp = amplitudes;
 
-//Pitch shifts an AV by cents
-AmplitudeVector pitchShift(AmplitudeVector amplitudes, int cents);
+	int vectorCapacity = 0;
+	int newSize = 0;
+	double sampleRate = target.getSampleRate();
+	int sampleSize = int(mDelayInSeconds * sampleRate);
+	int sampleOffset = sampleSize;
+	int delayTempSize = delayTemp.capacity();
+	double delayReductionInDB = rawToDecibel(feedback) / 100 /*replace with amplitudeRange*/;
+	do{
+		vectorCapacity = amplitudes.capacity();
+		newSize = (vectorCapacity + delayTempSize + sampleSize);
+		amplitudes.resize(newSize);
+		volumeChange(delayTemp, delayReductionInDB);
+		sumTwoVectors(amplitudes, delayTemp, sampleOffset);
+		sampleOffset += sampleSize;
+	} while (getMax(delayTemp) > 100 /*replace with amplitudeRange*/ / 8);
 
-//Stretches an AV by percentage stretch
-AmplitudeVector timeStretch(AmplitudeVector amplitudes, float stretch);
+	amplitudes.shrink_to_fit();
+
+}
+DelayEffect::~DelayEffect() { }
