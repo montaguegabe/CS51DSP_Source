@@ -51,7 +51,10 @@ private:
 	AudioFormatReader* mAudioReader;
 	File mAudioFile;
 	FileInputStream* mInputStream;
+    
 	int64 mNumSamples;
+    int64 mLog2Samples;
+    
 	double mSampleRate;
 	double mLengthInSeconds;
 	bool mInitializedProperly;

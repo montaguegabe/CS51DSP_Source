@@ -11,6 +11,7 @@
 
 // Initializes a sound wave instance from an audio file
 SoundWave::SoundWave(String filename) {
+    
     mFF = -1;
 	mFormatManager.registerBasicFormats();
 	mAudioFile = File(filename);
@@ -18,7 +19,7 @@ SoundWave::SoundWave(String filename) {
 	bool fileExists = mAudioFile.exists();
 	mAudioReader = mFormatManager.createReaderFor(mAudioFile);
 
-	//collects data about audio file
+	// Collects data about audio file
 	mNumSamples = mAudioReader->lengthInSamples;
 	mSampleRate = mAudioReader->sampleRate;
 	mNumChannels = mAudioReader->numChannels;
@@ -67,10 +68,10 @@ AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
          * channel, so we could perform an FFT on each and display each channel's
          * specific spectrogram, but that's way out of scope */
         
-        //for (int i = 0; i < mNumSamples; i++) { -DUMMIED OUT TO KEEP VECTOR SMALL
-        
-        // Rounds down to a power of 2
-        int sampleCap = pow(2, (floor(log2(mNumSamples))));
+        // Rounds down to a power of 2. Not ideal
+        // TODO: Fix
+        mLog2Samples = floor(log2(mNumSamples));
+        int sampleCap = pow(2, mLog2Samples);
         
         for (int i = 0; i < sampleCap; i++) {
             sample = 0.0;
@@ -89,20 +90,19 @@ AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
 // Returns a reference to a vector of the fourier transform
 AmplitudeVector& SoundWave::getAmplitudeFrequencyVector() {
     
-    mAmplitudeFrequencyVector.clear();
-    
-    // Dummy implementation that returns an abs(cosine) wave
-    /*for (int i = 0; i < 500; i++) {
-        AmplitudeType value = cos(i / 7.0f);
-        if (value < 0) value = -value;
-        mAmplitudeFrequencyVector.push_back(value);
-    }*/
-    
-    auto complexInput = realVectorToComplex(mAmplitudeTimeVector);
-    ComplexVector transform;
-    transform = fft(complexInput);
-    
-    mAmplitudeFrequencyVector = complexVectorToReal(transform);
+    // Calculate if not already there
+    if (mAmplitudeFrequencyVector.size() == 0) {
+        
+        // Copy amplitude time vector over
+        mAmplitudeFrequencyVector = mAmplitudeTimeVector;
+        
+        // Get the array representation
+        AmplitudeType* array = mAmplitudeFrequencyVector.data();
+        
+        //mLog2Samples
+        GFFT<18, AmplitudeType> calculator;
+        calculator.fft(array);
+    }
     
     return mAmplitudeFrequencyVector;
 }

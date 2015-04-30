@@ -6,103 +6,146 @@
 //
 //
 
-#include <complex>
-#include <math.h>
 #include "SoundWave.h"
 
-// Define a complex vector
-typedef std::vector<std::complex<AmplitudeType>> ComplexVector;
+#pragma mark Template-based trigonometric substitutions
 
-// Define complex number
-typedef std::complex<AmplitudeType> ComplexAmplitude;
-
-// Index type
-typedef ComplexVector::size_type ComplexSizeType;
-
-// Define imaginary number
-std::complex<AmplitudeType> i (0,1);
-
-#define M_PI 3.14159265358979323846264338327950288
-
-// Helper function to define omega in FFT function
-ComplexAmplitude omega(ComplexSizeType p, ComplexSizeType q)
-{
-    //convert constants to real part of complex number
-    ComplexAmplitude pComplex (p);
-    ComplexAmplitude qComplex (q);
-    
-    //printf("Omega called: %li, %li\n", p, q);
-    
-    ComplexAmplitude exponent = (i * 2.0 * M_PI * qComplex) / pComplex;
-    return std::exp(exponent);
-}
-
-ComplexVector even(ComplexVector input) {
-    ComplexVector result;
-    ComplexSizeType n = input.size();
-    for (int i = 0; i < n; i += 2) {
-        result.push_back(input[i]);
+template<unsigned M, unsigned N, unsigned B, unsigned A>
+struct SinCosSeries {
+    static double value() {
+        return 1-(A*M_PI/B)*(A*M_PI/B)/M/(M+1)
+        *SinCosSeries<M+2,N,B,A>::value();
     }
-    return result;
-}
+};
 
-ComplexVector odd(ComplexVector input) {
-    ComplexVector result;
-    ComplexSizeType n = input.size();
-    for (int i = 1; i < n; i += 2) {
-        result.push_back(input[i]);
-    }
-    return result;
-}
+template<unsigned N, unsigned B, unsigned A>
+struct SinCosSeries<N,N,B,A> {
+    static double value() { return 1.; }
+};
 
-ComplexVector fft(ComplexVector input) {
-    
-    ComplexVector::size_type n = input.size();
-    
-    if (n == 1) {
-        ComplexVector result(n, input[0]);
-        return result;
+template<unsigned B, unsigned A, typename T=double>
+struct Sin;
+
+template<unsigned B, unsigned A>
+struct Sin<B,A,float> {
+    static float value() {
+        return (A*M_PI/B)*SinCosSeries<2,24,B,A>::value();
     }
-    else {
-        ComplexVector evens = even(input);
-        ComplexVector odds = odd(input);
-        ComplexVector fEven;
-        fEven = fft(evens);
-        ComplexVector fOdd;
-        fOdd = fft(odds);
-        
-        ComplexVector result (n, 0);
-        for (int i = 0; i < n / 2; i++) {
-            ComplexAmplitude omega2 = omega(n, -i);
-            result[i] = fEven[i] + omega2 * fOdd[i];
-            result[i + n / 2] = fEven[i] - omega2 * fOdd[i];
+};
+template<unsigned B, unsigned A>
+struct Sin<B,A,double> {
+    static double value() {
+        return (A*M_PI/B)*SinCosSeries<2,34,B,A>::value();
+    }
+};
+
+template<unsigned B, unsigned A, typename T=double>
+struct Cos;
+
+template<unsigned B, unsigned A>
+struct Cos<B,A,float> {
+    static float value() {
+        return SinCosSeries<1,23,B,A>::value();
+    }
+};
+template<unsigned B, unsigned A>
+struct Cos<B,A,double> {
+    static double value() {
+        return SinCosSeries<1,33,B,A>::value();
+    }
+};
+
+#pragma mark Reindexing
+
+template <typename T>
+static void scramble(T* data, unsigned long n) {
+    // Reverse-binary reindexing
+    //n = nn<<1;
+    unsigned long j, i, m, nn;
+    nn = n >> 1;
+    j = 1;
+    for (i = 1; i < n; i+=2) {
+        if (j > i) {
+            std::swap<T>(data[j - 1], data[i - 1]);
+            std::swap<T>(data[j], data[i]);
         }
+        m = nn;
+        while (m >= 2 && j > m) {
+            j -= m;
+            m >>= 1;
+        }
+        j += m;
+    };
+}
+
+#pragma mark FFT
+
+/*template<unsigned N, typename T=double>
+class DanielsonLanczos {
+    DanielsonLanczos<N/2,T> next;
+public:
+    void apply(T* data) {
+        next.apply(data);
+        next.apply(data+N);
         
-        return result;
+        T tempr,tempi,c,s;
+        
+        for (unsigned i=0; i<N; i+=2) {
+            c = cos(i*M_PI/N);
+            s = -sin(i*M_PI/N);
+            tempr = data[i+N]*c - data[i+N+1]*s;
+            tempi = data[i+N]*s + data[i+N+1]*c;
+            data[i+N] = data[i]-tempr;
+            data[i+N+1] = data[i+1]-tempi;
+            data[i] += tempr;
+            data[i+1] += tempi;
+        }
     }
-}
+};*/
 
-// Define method for turning real vectors to complex, vice versa
-ComplexVector realVectorToComplex(AmplitudeVector v) {
-    
-    const auto size = v.size();
-    ComplexVector newVector (size, i);
-    
-    for (int i = 0; i < size; i++) {
-        newVector[i] = v[i];
+template<unsigned N, typename T=double>
+class DanielsonLanczos {
+    DanielsonLanczos<N/2,T> next;
+public:
+    void apply(T* data) {
+        next.apply(data);
+        next.apply(data+N);
+        
+        T wtemp,tempr,tempi,wr,wi,wpr,wpi;
+        wtemp = sin(M_PI/N);
+        wpr = -2.0*wtemp*wtemp;
+        wpi = -sin(2*M_PI/N);
+        wr = 1.0;
+        wi = 0.0;
+        for (unsigned i=0; i<N; i+=2) {
+            tempr = data[i+N]*wr - data[i+N+1]*wi;
+            tempi = data[i+N]*wi + data[i+N+1]*wr;
+            data[i+N] = data[i]-tempr;
+            data[i+N+1] = data[i+1]-tempi;
+            data[i] += tempr;
+            data[i+1] += tempi;
+            
+            wtemp = wr;
+            wr += wr*wpr - wi*wpi;
+            wi += wi*wpr + wtemp*wpi;
+        }
     }
-    
-    return newVector;
-}
+};
 
-AmplitudeVector complexVectorToReal(ComplexVector v) {
-    
-    const auto size = v.size();
-    AmplitudeVector newVector (size, 0);
-    
-    for (int i = 0; i < size; i++) {
-        newVector[i] = v[i].real();
+template<typename T>
+class DanielsonLanczos<1,T> {
+public:
+    void apply(T* data) { }
+};
+
+template<unsigned P,
+typename T=double>
+class GFFT {
+    enum { N = 1<<P };
+    DanielsonLanczos<N,T> recursion;
+public:
+    void fft(T* data) {
+        scramble<T>(data,N);
+        recursion.apply(data);
     }
-    
-    return newVector;
-}
+};
