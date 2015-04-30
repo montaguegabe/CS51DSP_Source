@@ -8,7 +8,7 @@
 
 #include "SoundWave.h"
 
-#pragma mark Template-based trigonometric substitutions
+#pragma mark Template-based Trigonometric Substitutions
 
 template<unsigned M, unsigned N, unsigned B, unsigned A>
 struct SinCosSeries {
@@ -57,9 +57,9 @@ struct Cos<B,A,double> {
 
 #pragma mark Reindexing
 
+// Reverse-binary reindexing function
 template <typename T>
 static void scramble(T* data, unsigned long n) {
-    // Reverse-binary reindexing
     //n = nn<<1;
     unsigned long j, i, m, nn;
     nn = n >> 1;
@@ -78,7 +78,7 @@ static void scramble(T* data, unsigned long n) {
     };
 }
 
-#pragma mark FFT
+#pragma mark Main Algorithm
 
 /*template<unsigned N, typename T=double>
 class DanielsonLanczos {
@@ -112,9 +112,9 @@ public:
         next.apply(data+N);
         
         T wtemp,tempr,tempi,wr,wi,wpr,wpi;
-        wtemp = sin(M_PI/N);
+        wtemp = -Sin<N,1,T>::value();
         wpr = -2.0*wtemp*wtemp;
-        wpi = -sin(2*M_PI/N);
+        wpi = -Sin<N,2,T>::value();
         wr = 1.0;
         wi = 0.0;
         for (unsigned i=0; i<N; i+=2) {
@@ -129,6 +129,52 @@ public:
             wr += wr*wpr - wi*wpi;
             wi += wi*wpr + wtemp*wpi;
         }
+    }
+};
+
+// For small samples it's faster to use non-optimized, hard-coded version
+template<typename T>
+class DanielsonLanczos<4,T> {
+public:
+    void apply(T* data) {
+        T tr = data[2];
+        T ti = data[3];
+        data[2] = data[0]-tr;
+        data[3] = data[1]-ti;
+        data[0] += tr;
+        data[1] += ti;
+        tr = data[6];
+        ti = data[7];
+        data[6] = data[5]-ti;
+        data[7] = tr-data[4];
+        data[4] += tr;
+        data[5] += ti;
+        
+        tr = data[4];
+        ti = data[5];
+        data[4] = data[0]-tr;
+        data[5] = data[1]-ti;
+        data[0] += tr;
+        data[1] += ti;
+        tr = data[6];
+        ti = data[7];
+        data[6] = data[2]-tr;
+        data[7] = data[3]-ti;
+        data[2] += tr;
+        data[3] += ti;
+    }
+};
+
+template<typename T>
+class DanielsonLanczos<2,T> {
+public:
+    void apply(T* data) {
+        T tr = data[2];
+        T ti = data[3];
+        data[2] = data[0]-tr;
+        data[3] = data[1]-ti;
+        data[0] += tr;
+        data[1] += ti;
     }
 };
 
@@ -149,3 +195,6 @@ public:
         recursion.apply(data);
     }
 };
+
+#pragma mark Sample Number-Independent Factory Interface
+

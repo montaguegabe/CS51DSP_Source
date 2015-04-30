@@ -95,6 +95,7 @@ AmplitudeVector& SoundWave::getAmplitudeFrequencyVector() {
         
         // Copy amplitude time vector over
         mAmplitudeFrequencyVector = mAmplitudeTimeVector;
+        mAmplitudeFrequencyVector.push_back(0);
         
         // Get the array representation
         AmplitudeType* array = mAmplitudeFrequencyVector.data();
