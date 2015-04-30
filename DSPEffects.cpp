@@ -14,6 +14,11 @@
 static AmplitudeType volumeChangeSample(AmplitudeType amplitude, float decibels) {
     double mult = pow(2, (decibels / 6));
     double newAmp = amplitude * mult;
+	if (newAmp < 1.0) {
+		newAmp = 1.0;
+	}
+	else if (newAmp > 1.0) { 
+		newAmp = -1.0; }
     return newAmp;
 }
 
@@ -39,31 +44,31 @@ static double getMax(AmplitudeVector& amplitudes) {
 }
 
 // Converts raw amplitude to decibel value, with max Amplitude = 0 db
-static double rawToDecibel(double rawAmp, AmplitudeType amplitudeRange) {
+static double rawToDecibel(double rawAmp) {
     double dBValue = 0.0;
-    double normalizedAmp = std::abs(rawAmp) / amplitudeRange;
+    double normalizedAmp = std::abs(rawAmp);
     dBValue = 6 * (log2(normalizedAmp));
     return dBValue;
 }
 
 // Converts decibel value to raw amplitude, with max Amplitude = 0 db
-static double decibelToRaw(double decibel, AmplitudeType amplitudeRange) {
+static double decibelToRaw(double decibel) {
     double rawAmp = 0.0;
-    rawAmp = pow(2, (decibel/6)) * amplitudeRange;
+    rawAmp = pow(2, (decibel/6));
     return rawAmp;
 }
 
 static void sumTwoVectors
-(AmplitudeVector& amplitudes1, AmplitudeVector& amplitudes2, int offset, float amplitudeRange){
+(AmplitudeVector& amplitudes1, AmplitudeVector& amplitudes2, int offset){
 	auto size = amplitudes2.size();
 	for (unsigned int i = 0; i < size; i++){
 		amplitudes1[i + offset] += amplitudes2[i];
-		if (amplitudes1[i + offset] > amplitudeRange)
+		if (amplitudes1[i + offset] > 1.0)
 		{
-			amplitudes1[i + offset] = amplitudeRange;
+			amplitudes1[i + offset] = 1.0;
 		}
-		else if (amplitudes1[i + offset] < -amplitudeRange){
-			amplitudes1[i + offset] = -amplitudeRange;
+		else if (amplitudes1[i + offset] < -1.0){
+			amplitudes1[i + offset] = -1.0;
 		}
 	}
 }
@@ -95,7 +100,7 @@ void CompressorEffect::apply(SoundWave &target) {
 	double shrinkValue = 0.0;
     auto size = amplitudes.size();
 	for (int i = 0; i < size; i++) {
-		currentDB = rawToDecibel(amplitudes[i], maxValue);
+		currentDB = rawToDecibel(amplitudes[i]);
 		if (currentDB > mThreshold){
 			shrinkValue = (currentDB - ((mThreshold - currentDB) * (mRatio - 1 / mRatio)));
 			amplitudes[i] = volumeChangeSample(amplitudes[i], shrinkValue);
@@ -106,8 +111,7 @@ void CompressorEffect::apply(SoundWave &target) {
 	double newMaxValue = getMax(amplitudes);
 
 	// Expands all amplitudes by difference in previous and new maxValue
-    //TODO: Figure out what the second argument should be for rawToDecibel!
-	double expandValue = rawToDecibel(maxValue, maxValue * 2) - rawToDecibel(newMaxValue, maxValue * 2);
+	double expandValue = rawToDecibel(maxValue) - rawToDecibel(newMaxValue);
 	volumeChange(amplitudes, expandValue);
 }
 CompressorEffect::~CompressorEffect() { }
@@ -124,7 +128,7 @@ void DelayEffect::apply(SoundWave &target)
 	int sampleSize = int(mDelayInSeconds * sampleRate);
 	int sampleOffset = sampleSize;
 	int delayTempSize = delayTemp.capacity();
-	double delayReductionInDB = rawToDecibel(feedback) / 100 /*replace with amplitudeRange*/;
+	double delayReductionInDB = rawToDecibel(mFeedback);
 	do{
 		vectorCapacity = amplitudes.capacity();
 		newSize = (vectorCapacity + delayTempSize + sampleSize);
@@ -132,7 +136,7 @@ void DelayEffect::apply(SoundWave &target)
 		volumeChange(delayTemp, delayReductionInDB);
 		sumTwoVectors(amplitudes, delayTemp, sampleOffset);
 		sampleOffset += sampleSize;
-	} while (getMax(delayTemp) > 100 /*replace with amplitudeRange*/ / 8);
+	} while (getMax(delayTemp) > .125);
 
 	amplitudes.shrink_to_fit();
 
