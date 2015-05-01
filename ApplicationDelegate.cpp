@@ -126,6 +126,8 @@ void ApplicationDelegate::shutdown() {
 // The one callback for any button being pressed
 void ApplicationDelegate::buttonClicked (Button* button) {
     
+    if (button != &mLoadFileButton && !mWaveData) return;
+    
     // Load file button has been pressed
     if (button == &mLoadFileButton) {
         FileChooser myChooser ("Choose a WAV audio file",
@@ -195,12 +197,17 @@ void ApplicationDelegate::buttonClicked (Button* button) {
         CompressorEffect effect (-1.0f, 2.0f);
         SoundWave* waveData = mWaveData;
         effect.apply(*waveData);
+        
+        // Mark for recalculation
+        mWaveData->recalcFourier();
     }
     
     else if (button == &mDelayButton) {
-        DelayEffect effect (2.0f, 0.5f);
+        DelayEffect effect (0.5f, 0.5f);
         SoundWave* waveData = mWaveData;
         effect.apply(*waveData);
+        
+        mWaveData->recalcFourier();
     }
     
     // Update graphs

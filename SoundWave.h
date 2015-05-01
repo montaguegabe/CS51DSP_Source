@@ -45,6 +45,9 @@ public:
     // for each small window of time throughout the audio.
     std::vector<AmplitudeVector>& getSpectrogramData();
     
+    // Recalculate the fourier-related data
+    void recalcFourier();
+    
     // Fundamental frequency
     float getFF();
     unsigned int getFFIndex();

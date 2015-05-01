@@ -202,6 +202,15 @@ unsigned int SoundWave::getFFIndex() {
     return ff * (1 << mLog2Samples) / mSampleRate;
 }
 
+void SoundWave::recalcFourier() {
+    
+    mFF = -1.0;
+    mAmplitudeFrequencyVector.clear();
+    mSpectrogramData.clear();
+    getAmplitudeFrequencyVector();
+    getSpectrogramData();
+}
+
 #pragma mark Frequency to Note
 String SoundWave::getNote() {
     
