@@ -72,7 +72,7 @@ void ApplicationDelegate::init(void) {
     mMainComp.addAndMakeVisible (mminusButton);
     
     // Create remove noise button
-    mNoiseButton.setButtonText("Remove Noise");
+    mNoiseButton.setButtonText("Dyn. Compress");
     mNoiseButton.setBounds(10, 200, 100, 20);
     mMainComp.addAndMakeVisible (mNoiseButton);
     
@@ -91,7 +91,7 @@ void ApplicationDelegate::init(void) {
     mMainComp.addAndMakeVisible (mAmplitudeFrequencyView);
     
     // Create spectrogram
-    mSpectrogram.setBounds(120, 270, 300, 300);
+    mSpectrogram.setBounds(120, 270, 670, 300);
     mMainComp.addAndMakeVisible(mSpectrogram);
     
     // Registers the AD to have the buttonClicked function invoked by the button
@@ -182,13 +182,13 @@ void ApplicationDelegate::buttonClicked (Button* button) {
         }
     }
     else if (button == &mplusButton) {
-        VolumeChangeEffect effect (1.0f);
+        VolumeChangeEffect effect (1.75f);
         SoundWave* waveData = mWaveData;
         effect.apply(*waveData);
     }
     
     else if (button == &mminusButton) {
-        VolumeChangeEffect effect (-1.0f);
+        VolumeChangeEffect effect (-1.75f);
         SoundWave* waveData = mWaveData;
         effect.apply(*waveData);
     }
@@ -207,6 +207,7 @@ void ApplicationDelegate::buttonClicked (Button* button) {
         SoundWave* waveData = mWaveData;
         effect.apply(*waveData);
         
+        // Mark for recalculation
         mWaveData->recalcFourier();
     }
     
