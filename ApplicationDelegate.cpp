@@ -182,19 +182,26 @@ void ApplicationDelegate::buttonClicked (Button* button) {
         }
     }
     else if (button == &mplusButton) {
-        VolumeChangeEffect effect(2.0f);
+        VolumeChangeEffect effect (2.0f);
         SoundWave* waveData = mWaveData;
         effect.apply(*waveData);
     }
+    
     else if (button == &mminusButton) {
-        VolumeChangeEffect effect(-2.0f);
+        VolumeChangeEffect effect (-2.0f);
         SoundWave* waveData = mWaveData;
         effect.apply(*waveData);
     }
+    
     else if (button == &mNoiseButton) {
-        CompressorEffect::CompressorEffect(1.0,0.5f);
+        CompressorEffect effect (-1.0f,2.0f);
+        SoundWave* waveData = mWaveData;
+        effect.apply(*waveData);
     }
+    
     else if (button == &mDelayButton) {
-        DelayEffect (*mWaveData);
+        DelayEffect effect (2.0f, 0.5f);
+        SoundWave* waveData = mWaveData;
+        effect.apply(*waveData);
     }
 }
