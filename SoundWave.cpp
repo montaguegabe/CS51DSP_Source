@@ -9,12 +9,13 @@
 #include "SoundWave.h"
 #include "SoundWaveFFT.h"
 #include "FastIntPowerOperations.h"
+#include "FrequencyNoteMapping.h"
 
 // Initializes a sound wave instance from an audio file
 SoundWave::SoundWave(String filename) {
     
     // Initialize variables
-    mFF = -1;
+    mFF = -1.0;
 	mFormatManager.registerBasicFormats();
 	mAudioFile = File(filename);
 	bool filePathCorrect = (mAudioFile.getFullPathName() == filename);
@@ -167,15 +168,15 @@ std::vector<AmplitudeVector>& SoundWave::getSpectrogramData() {
     return mSpectrogramData;
 }
 
-double::SoundWave::getSampleRate() {
+double SoundWave::getSampleRate() {
     return mSampleRate;
 }
 
 // Lazy returning
-int SoundWave::getFF() {
+float SoundWave::getFF() {
     
     // Calculate if not already
-    if (mFF == -1) {
+    if (mFF == -1.0) {
         
         AmplitudeType maximum = 0;
         int maxIndex = 0;
@@ -197,6 +198,28 @@ int SoundWave::getFF() {
 
 unsigned int SoundWave::getFFIndex() {
     
-    auto ff = getFF();
+    int ff = getFF();
     return ff * (1 << mLog2Samples) / mSampleRate;
+}
+
+#pragma mark Frequency to Note
+String SoundWave::getNote() {
+    
+    NoteVector mnv = getMappingNoteVector();
+    int ff = getFF();
+    
+    int size = mnv.size();
+    float prevDist = 100000;
+    
+    for (int i = 0; i < size; i++) {
+        
+        float dist = std::abs(ff - mnv[i].mFreq);
+        if (prevDist < dist) {
+            return mnv[i - 1].mName;
+        }
+        
+        prevDist = dist;
+    }
+    
+    return "";
 }

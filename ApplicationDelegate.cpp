@@ -146,9 +146,8 @@ void ApplicationDelegate::buttonClicked (Button* button) {
                 mSpectrogram.setSource(vector2DPointer);
                 
                 // Update the FF labeling
-                int ff = mWaveData->getFF();
-                std::string out = "FF: " + std::to_string(ff);
-                mFFText.setText(out, dontSendNotification);
+                String ff = "FF: " + mWaveData->getNote();
+                mFFText.setText(ff, dontSendNotification);
                 mAmplitudeFrequencyView.setFreqHilite(mWaveData->getFFIndex());
             }
         }

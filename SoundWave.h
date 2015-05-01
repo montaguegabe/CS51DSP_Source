@@ -46,8 +46,9 @@ public:
     std::vector<AmplitudeVector>& getSpectrogramData();
     
     // Fundamental frequency
-    int getFF();
+    float getFF();
     unsigned int getFFIndex();
+    String getNote();
     
     // Get sample rate
     double getSampleRate();
@@ -71,7 +72,7 @@ private:
 	bool mInitializedProperly;
     
     // The fundamental freq of the sound
-    int mFF;
+    float mFF;
     
     // Holds amplitude over time
     AmplitudeVector mAmplitudeTimeVector;
