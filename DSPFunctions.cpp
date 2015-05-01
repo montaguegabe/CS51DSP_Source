@@ -9,8 +9,8 @@
 #include "DSPFunctions.h"
 
 //dummy starting values; get these from SoundWave
-//double amplitudeRange = 1.0;
-//double sampleRate = 48000.0;
+double amplitudeRange = 1.0;
+double sampleRate = 48000.0;
 
 //Adjusts volume of an AmplitudeVector by decibels
 AmplitudeVector volumeChange(AmplitudeVector amplitudes, double decibels){

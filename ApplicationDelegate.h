@@ -56,6 +56,10 @@ private:
     
     TextButton mLoadFileButton;
     TextButton mPlayButton;
+    TextButton mplusButton;
+    TextButton mminusButton;
+    TextButton mNoiseButton;
+    TextButton mDelayButton;
     
     Label mAudioTitleText;
     Label mFFText;

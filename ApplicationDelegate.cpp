@@ -61,6 +61,26 @@ void ApplicationDelegate::init(void) {
     mPlayButton.setBounds(10, 80, 100, 20);
     mMainComp.addAndMakeVisible (mPlayButton);
     
+    // Create volume up button
+    mplusButton.setButtonText("vol +");
+    mplusButton.setBounds(10, 140, 100, 20);
+    mMainComp.addAndMakeVisible (mplusButton);
+    
+    // Create volume down button
+    mminusButton.setButtonText("vol -");
+    mminusButton.setBounds(10, 170, 100, 20);
+    mMainComp.addAndMakeVisible (mminusButton);
+    
+    // Create remove noise button
+    mNoiseButton.setButtonText("Remove Noise");
+    mNoiseButton.setBounds(10, 200, 100, 20);
+    mMainComp.addAndMakeVisible (mNoiseButton);
+    
+    // Create delay button
+    mDelayButton.setButtonText("Add Delay");
+    mDelayButton.setBounds(10, 230, 100, 20);
+    mMainComp.addAndMakeVisible (mDelayButton);
+    
     // Create a vector content graph for the amplitude-time
     mAmplitudeTimeView.setBounds(120, 50, 670, 100);
     mMainComp.addAndMakeVisible (mAmplitudeTimeView);
@@ -77,6 +97,8 @@ void ApplicationDelegate::init(void) {
     // Registers the AD to have the buttonClicked function invoked by the button
     mLoadFileButton.addListener(this);
     mPlayButton.addListener(this);
+    mplusButton.addListener(this);
+    mminusButton.addListener(this);
 }
 
 // Called when the application must quit
@@ -85,6 +107,8 @@ void ApplicationDelegate::shutdown() {
     //TODO: Remove all listeners!
     mLoadFileButton.removeListener(this);
     mPlayButton.removeListener(this);
+    mplusButton.removeListener(this);
+    mminusButton.removeListener(this);
     
     // Delte our sound wave object
     mWaveData = nullptr;
@@ -156,5 +180,21 @@ void ApplicationDelegate::buttonClicked (Button* button) {
         if (mWaveData) {
             mMainComp.playVector(mWaveData->getAmplitudeTimeVector(), mWaveData->getSampleRate());
         }
+    }
+    else if (button == &mplusButton) {
+        VolumeChangeEffect effect(2.0f);
+        SoundWave* waveData = mWaveData;
+        effect.apply(*waveData);
+    }
+    else if (button == &mminusButton) {
+        VolumeChangeEffect effect(-2.0f);
+        SoundWave* waveData = mWaveData;
+        effect.apply(*waveData);
+    }
+    else if (button == &mNoiseButton) {
+        CompressorEffect::CompressorEffect(1.0,0.5f);
+    }
+    else if (button == &mDelayButton) {
+        DelayEffect (*mWaveData);
     }
 }
