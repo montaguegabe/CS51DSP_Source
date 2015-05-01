@@ -9,6 +9,8 @@
 #ifndef CS51DigitalSignalProcessor_FastIntPowerOperations_h
 #define CS51DigitalSignalProcessor_FastIntPowerOperations_h
 
+#include <cstdint>
+
 // Source: http://stackoverflow.com/questions/11376288/fast-computing-of-log2-for-64-bit-integers
 const int tab32[32] = {
     0,  9,  1, 10, 13, 21,  2, 29,

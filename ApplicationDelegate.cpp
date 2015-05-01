@@ -62,12 +62,12 @@ void ApplicationDelegate::init(void) {
     mMainComp.addAndMakeVisible (mPlayButton);
     
     // Create volume up button
-    mplusButton.setButtonText("vol +");
+    mplusButton.setButtonText("Vol +");
     mplusButton.setBounds(10, 140, 100, 20);
     mMainComp.addAndMakeVisible (mplusButton);
     
     // Create volume down button
-    mminusButton.setButtonText("vol -");
+    mminusButton.setButtonText("Vol -");
     mminusButton.setBounds(10, 170, 100, 20);
     mMainComp.addAndMakeVisible (mminusButton);
     
@@ -99,6 +99,8 @@ void ApplicationDelegate::init(void) {
     mPlayButton.addListener(this);
     mplusButton.addListener(this);
     mminusButton.addListener(this);
+    mNoiseButton.addListener(this);
+    mDelayButton.addListener(this);
 }
 
 // Called when the application must quit
@@ -109,6 +111,8 @@ void ApplicationDelegate::shutdown() {
     mPlayButton.removeListener(this);
     mplusButton.removeListener(this);
     mminusButton.removeListener(this);
+    mNoiseButton.removeListener(this);
+    mDelayButton.removeListener(this);
     
     // Delte our sound wave object
     mWaveData = nullptr;
@@ -150,12 +154,6 @@ void ApplicationDelegate::buttonClicked (Button* button) {
             }
             else {
                 
-                //TODO: Take this out!
-                // Apply an effect by code. Should be done by GUI later
-                //VolumeChangeEffect effect(2.0f);
-                //SoundWave* waveData = mWaveData; // Change from scoped pointer to reference
-                //effect.apply(*waveData);
-                
                 // Set the text to match
                 mAudioTitleText.setText(audioFile.getFileNameWithoutExtension(),
                                         dontSendNotification);
@@ -182,19 +180,19 @@ void ApplicationDelegate::buttonClicked (Button* button) {
         }
     }
     else if (button == &mplusButton) {
-        VolumeChangeEffect effect (2.0f);
+        VolumeChangeEffect effect (1.0f);
         SoundWave* waveData = mWaveData;
         effect.apply(*waveData);
     }
     
     else if (button == &mminusButton) {
-        VolumeChangeEffect effect (-2.0f);
+        VolumeChangeEffect effect (-1.0f);
         SoundWave* waveData = mWaveData;
         effect.apply(*waveData);
     }
     
     else if (button == &mNoiseButton) {
-        CompressorEffect effect (-1.0f,2.0f);
+        CompressorEffect effect (-1.0f, 2.0f);
         SoundWave* waveData = mWaveData;
         effect.apply(*waveData);
     }
@@ -204,4 +202,9 @@ void ApplicationDelegate::buttonClicked (Button* button) {
         SoundWave* waveData = mWaveData;
         effect.apply(*waveData);
     }
+    
+    // Update graphs
+    mAmplitudeFrequencyView.repaint();
+    mAmplitudeTimeView.repaint();
+    mSpectrogram.repaint();
 }

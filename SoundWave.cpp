@@ -69,14 +69,14 @@ AmplitudeVector& SoundWave::getAmplitudeTimeVector() {
         
         /* Fills a vector with samples from the buffer, normalized between
          * -1.0 and 1.0. For multichannel tracks, all samples at a given time
-         * are averaged. Better would be an array of vector of each individual
+         * are averaged. Could also be an array of vector of each individual
          * channel, so we could perform an FFT on each and display each channel's
-         * specific spectrogram, but that's way out of scope */
+         * specific spectrogram. */
         
         // Rounds down to a power of 2. Not ideal
         //mLog2Samples = ceil(log2(mNumSamples));
         mLog2Samples = log2Int(mNumSamples) + 1;
-        int sampleCap = 1<<mLog2Samples;
+        int sampleCap = 1 << mLog2Samples;
         
         for (int i = 0; i < mNumSamples; i++) {
             sample = 0.0;

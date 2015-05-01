@@ -14,11 +14,6 @@
 static AmplitudeType volumeChangeSample(AmplitudeType amplitude, float decibels) {
     double mult = pow(2, (decibels / 6));
     double newAmp = amplitude * mult;
-	if (newAmp < 1.0) {
-		newAmp = 1.0;
-	}
-	else if (newAmp > 1.0) { 
-		newAmp = -1.0; }
     return newAmp;
 }
 
@@ -27,7 +22,8 @@ static void volumeChange(AmplitudeVector& amplitudes, float decibels) {
     
     auto numSamples = amplitudes.size();
     for (int i = 0; i < numSamples; i++) {
-        amplitudes[i] = volumeChangeSample(amplitudes[i], decibels);
+        AmplitudeType newSample = volumeChangeSample(amplitudes[i], decibels);
+        amplitudes[i] = newSample;
     }
 }
 
