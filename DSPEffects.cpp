@@ -119,6 +119,8 @@ CompressorEffect::~CompressorEffect() { }
 //Adds delay
 void DelayEffect::apply(SoundWave &target)
 {
+	//creates a reference to original vector, and stores the original data for
+	//adding iteratively to original file
 	AmplitudeVector& amplitudes = target.getAmplitudeTimeVector();
 	AmplitudeVector delayTemp = amplitudes;
 
@@ -130,13 +132,19 @@ void DelayEffect::apply(SoundWave &target)
 	int delayTempSize = delayTemp.capacity();
 	double delayReductionInDB = rawToDecibel(mFeedback);
 	do{
+		//resizes original vector to make room for samples
 		vectorCapacity = amplitudes.capacity();
 		newSize = (vectorCapacity + delayTempSize + sampleSize);
 		amplitudes.resize(newSize);
+
+		//ducks delayTemp by a number of decibels corresponding to feedback value
+		//and adds ducked delayTemp to original vector
 		volumeChange(delayTemp, delayReductionInDB);
 		sumTwoVectors(amplitudes, delayTemp, sampleOffset);
 		sampleOffset += sampleSize;
-	} while (getMax(delayTemp) > .125);
+	} 
+	//adds delay until delayTemp is quieter than -18dB
+	while (getMax(delayTemp) > .125);
 
 	amplitudes.shrink_to_fit();
 
